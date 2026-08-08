@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { SafeZone } from '@/data/safeZonesData';
+import { useDisaster } from '@/context/DisasterContext';
 import { MapPin, Navigation, Phone, Check, Home, Hospital, Shield, Flame } from 'lucide-react';
 
 interface SafeZoneBottomSheetProps {
@@ -15,6 +16,8 @@ export const SafeZoneBottomSheet: React.FC<SafeZoneBottomSheetProps> = ({
   selectedZoneId,
   onSelectZone,
 }) => {
+  const { t } = useDisaster();
+
   const getCategoryIcon = (type: SafeZone['type']) => {
     switch (type) {
       case 'Shelter':
@@ -117,7 +120,7 @@ export const SafeZoneBottomSheet: React.FC<SafeZoneBottomSheetProps> = ({
                 className="flex flex-1 items-center justify-center gap-1.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors"
               >
                 <Navigation className="h-3.5 w-3.5" />
-                <span>Directions</span>
+                <span>{t('getDirections')}</span>
               </a>
             </div>
           </div>

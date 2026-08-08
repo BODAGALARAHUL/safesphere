@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { DISASTER_GUIDES } from '@/data/guidanceData';
+import { DISASTER_GUIDES, getLocalizedGuidance } from '@/data/guidanceData';
+import { useDisaster } from '@/context/DisasterContext';
 import {
   ArrowLeft,
   Check,
@@ -20,9 +21,11 @@ import {
 export default function DisasterGuideDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { currentLanguage, t } = useDisaster();
   const guideId = params?.id as string;
 
-  const guide = DISASTER_GUIDES.find(g => g.id === guideId) || DISASTER_GUIDES[0];
+  const rawGuide = DISASTER_GUIDES.find(g => g.id === guideId) || DISASTER_GUIDES[0];
+  const guide = getLocalizedGuidance(rawGuide, currentLanguage);
 
   const [activeTab, setActiveTab] = useState<'BEFORE' | 'DURING' | 'AFTER'>('DURING');
 
@@ -103,9 +106,9 @@ export default function DisasterGuideDetailPage() {
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              {tab === 'BEFORE' && 'BEFORE (PREPARE)'}
-              {tab === 'DURING' && 'DURING (ACTION)'}
-              {tab === 'AFTER' && 'AFTER (RECOVERY)'}
+              {tab === 'BEFORE' && t('guidancePhaseBefore')}
+              {tab === 'DURING' && t('guidancePhaseDuring')}
+              {tab === 'AFTER' && t('guidancePhaseAfter')}
             </button>
           ))}
         </div>
@@ -115,7 +118,7 @@ export default function DisasterGuideDetailPage() {
       <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <h2 className="text-xs font-black uppercase tracking-wider text-slate-400">
-            {activeTab} PROTOCOL CHECKLIST
+            {t('recommendedActions')}
           </h2>
           <span className="text-xs font-semibold text-emerald-600">
             Verified NDMA Guideline
@@ -149,7 +152,7 @@ export default function DisasterGuideDetailPage() {
       <section className="rounded-2xl border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/30 p-6 shadow-sm space-y-3">
         <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-black">
           <AlertOctagon className="h-5 w-5 text-amber-600 shrink-0" />
-          <h2 className="text-xs uppercase tracking-wider">⚠ WHAT TO AVOID</h2>
+          <h2 className="text-xs uppercase tracking-wider">{t('thingsToAvoid')}</h2>
         </div>
 
         <ul className="space-y-2">
@@ -169,7 +172,7 @@ export default function DisasterGuideDetailPage() {
           className="flex items-center justify-center gap-2 h-13 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-md transition-colors"
         >
           <Navigation className="h-5 w-5" />
-          <span>FIND SAFE LOCATION</span>
+          <span>{t('findSafeLocation')}</span>
         </Link>
 
         <a
@@ -177,7 +180,7 @@ export default function DisasterGuideDetailPage() {
           className="flex items-center justify-center gap-2 h-13 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-md transition-colors"
         >
           <Phone className="h-5 w-5" />
-          <span>CALL 112 HELP</span>
+          <span>{t('call112')}</span>
         </a>
       </section>
 

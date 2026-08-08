@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export default function RiskLevelsPage() {
-  const { isOffline, toggleOfflineMode } = useDisaster();
+  const { isOffline, toggleOfflineMode, t } = useDisaster();
 
   return (
     <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-8">
@@ -28,13 +28,13 @@ export default function RiskLevelsPage() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-red-600 uppercase tracking-wider">
             <ShieldAlert className="h-4 w-4" />
-            <span>NATIONAL DISASTER RISK MATRIX</span>
+            <span>{t('riskMatrixTitle')}</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
             Risk Level Management & Protocol System
           </h1>
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-3xl">
-            SafeSphere uses a standardized 4-tier color code system matching GSDMA & NDMA advisory standards to communicate disaster urgency without unnecessary panic.
+            {t('riskMatrixDesc')}
           </p>
         </div>
       </ScrollReveal>
@@ -223,7 +223,7 @@ export default function RiskLevelsPage() {
             className="flex items-center justify-center gap-2 h-13 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-sm transition-colors"
           >
             <Navigation className="h-5 w-5" />
-            <span>VIEW NEARBY SAFE ZONES</span>
+            <span>{t('findSafeLocation')}</span>
           </Link>
 
           <a
@@ -231,7 +231,7 @@ export default function RiskLevelsPage() {
             className="flex items-center justify-center gap-2 h-13 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-colors"
           >
             <Phone className="h-5 w-5" />
-            <span>CALL 112 EMERGENCY HELPLINE</span>
+            <span>{t('call112')}</span>
           </a>
         </div>
       </ScrollReveal>

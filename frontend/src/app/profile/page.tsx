@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { useDisaster } from '@/context/DisasterContext';
-import { User, MapPin, Bell, Eye, ShieldCheck, Check, Radio } from 'lucide-react';
+import { User, MapPin, Bell, Eye, ShieldCheck, Check } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { selectedLocation, setSelectedLocation } = useDisaster();
+  const { selectedLocation, setSelectedLocation, t } = useDisaster();
 
   const [smsAlerts, setSmsAlerts] = useState<boolean>(true);
   const [highPrioritySound, setHighPrioritySound] = useState<boolean>(true);
@@ -30,10 +30,10 @@ export default function ProfilePage() {
           <span>APP PREFERENCES & REGION</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          Settings & Profile
+          {t('profileTitle')}
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Configure regional monitoring area, notification priorities, and accessibility preferences.
+          {t('profileSubtitle')}
         </p>
       </div>
 
@@ -45,7 +45,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <h2 className="font-bold text-base text-slate-900 dark:text-white">
-              Primary Monitoring Region
+              {t('settingsLocation')}
             </h2>
             <div className="text-xs text-slate-500">
               Disaster warnings and nearest safe zones will default to this area.
@@ -82,7 +82,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <h2 className="font-bold text-base text-slate-900 dark:text-white">
-              Notification Preferences
+              {t('settingsNotifications')}
             </h2>
             <div className="text-xs text-slate-500">
               High-priority broadcast channels for critical evacuation alerts.

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useDisaster } from '@/context/DisasterContext';
-import { PREPAREDNESS_ITEMS } from '@/data/preparednessData';
+import { PREPAREDNESS_ITEMS, getLocalizedPrepItem } from '@/data/preparednessData';
 import { CheckCircle2, Droplets, Utensils, Cross, ShieldCheck, Zap, BatteryCharging, Volume2, FileText, Sparkles } from 'lucide-react';
 
 export default function PreparednessPage() {
@@ -11,7 +11,9 @@ export default function PreparednessPage() {
     togglePrepItem,
     completedPrepCount,
     totalPrepCount,
-    prepPercentage
+    prepPercentage,
+    currentLanguage,
+    t
   } = useDisaster();
 
   const getPrepIcon = (iconName: string) => {
@@ -49,10 +51,10 @@ export default function PreparednessPage() {
           <span>PERSONAL EMERGENCY READY KIT</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          Emergency Preparedness
+          {t('preparednessTitle')}
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Small preparation can make a big difference. Complete your family emergency kit checklist before severe weather.
+          {t('preparednessSubtitle')}
         </p>
       </div>
 
@@ -92,7 +94,7 @@ export default function PreparednessPage() {
       {/* Checklist Sections Grouped by Category */}
       <div className="space-y-6">
         {categories.map(cat => {
-          const items = PREPAREDNESS_ITEMS.filter(item => item.category === cat);
+          const rawItems = PREPAREDNESS_ITEMS.filter(item => item.category === cat);
 
           return (
             <div key={cat} className="space-y-3">
@@ -101,7 +103,8 @@ export default function PreparednessPage() {
               </h3>
 
               <div className="space-y-2">
-                {items.map(item => {
+                {rawItems.map(rawItem => {
+                  const item = getLocalizedPrepItem(rawItem, currentLanguage);
                   const isChecked = !!checkedPrepItems[item.id];
                   const IconComponent = getPrepIcon(item.iconName);
 

@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import { EMERGENCY_CONTACTS } from '@/data/emergencyContactsData';
 import { ScrollReveal } from '@/components/ScrollReveal';
-import { Phone, Search, ShieldAlert, Share2, CheckCircle2, Ambulance, Flame, Shield, Radio, HeartHandshake, LifeBuoy } from 'lucide-react';
+import { useDisaster } from '@/context/DisasterContext';
+import { Phone, Search, ShieldAlert, CheckCircle2, Ambulance, Flame, Shield, Radio, HeartHandshake, LifeBuoy, Share2 } from 'lucide-react';
 
 export default function EmergencyContactsPage() {
+  const { t } = useDisaster();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isLocationBroadcasting, setIsLocationBroadcasting] = useState<boolean>(false);
 
@@ -48,13 +50,13 @@ export default function EmergencyContactsPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-bold text-red-600 uppercase tracking-wider">
             <Phone className="h-4 w-4" />
-            <span>OFFICIAL EMERGENCY HOTLINES</span>
+            <span>{t('officialHelplines')}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Emergency Contacts
+            {t('emergencyContactsTitle')}
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Direct tap-to-call emergency services across India. Available 24 hours a day, 7 days a week.
+            {t('helplineSubtitle')}
           </p>
         </div>
       </ScrollReveal>
@@ -81,7 +83,7 @@ export default function EmergencyContactsPage() {
               className="flex flex-1 items-center justify-center gap-2 h-14 rounded-xl bg-white text-red-700 hover:bg-red-50 font-black text-lg shadow-md transition-colors"
             >
               <Phone className="h-6 w-6" />
-              <span>CALL 112 NOW</span>
+              <span>{t('call112Now')}</span>
             </a>
 
             <button

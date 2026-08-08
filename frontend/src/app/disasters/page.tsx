@@ -2,11 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { DISASTER_GUIDES } from '@/data/guidanceData';
+import { DISASTER_GUIDES, getLocalizedGuidance } from '@/data/guidanceData';
 import { ScrollReveal } from '@/components/ScrollReveal';
+import { useDisaster } from '@/context/DisasterContext';
 import { BookOpen, Waves, Wind, Activity, Flame, ArrowRight } from 'lucide-react';
 
 export default function GuidancePage() {
+  const { currentLanguage, t } = useDisaster();
+
   const getDisasterIcon = (disasterType: string) => {
     switch (disasterType) {
       case 'Flood':
@@ -30,20 +33,21 @@ export default function GuidancePage() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
             <BookOpen className="h-4 w-4 text-emerald-600" />
-            <span>ACTIONABLE SURVIVAL LIBRARY</span>
+            <span>{t('disasterGuidanceTitle')}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Disaster Safety Guidance
+            {t('disasterGuidanceTitle')}
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Fast-scanning emergency protocols verified by National Disaster Management Authority (NDMA).
+            {t('disasterGuidanceSubtitle')}
           </p>
         </div>
       </ScrollReveal>
 
       {/* Grid of Disaster Cards (Scroll-Triggered Reveal) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {DISASTER_GUIDES.map((guide, idx) => {
+        {DISASTER_GUIDES.map((rawGuide, idx) => {
+          const guide = getLocalizedGuidance(rawGuide, currentLanguage);
           const IconComponent = getDisasterIcon(guide.disasterType);
 
           return (
@@ -73,7 +77,7 @@ export default function GuidancePage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white">
-                  <span>View Before / During / After Protocol</span>
+                  <span>View Protocol</span>
                   <ArrowRight className="h-4 w-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
                 </div>
               </Link>

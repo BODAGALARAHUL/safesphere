@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { useDisaster, SpecialAssistanceRequest } from '@/context/DisasterContext';
-import { X, HeartHandshake, MapPin, Phone, User, AlertCircle, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { X, HeartHandshake, MapPin, Phone, User, ShieldAlert } from 'lucide-react';
 
 export const SpecialAssistanceModal: React.FC = () => {
-  const { isAssistanceModalOpen, setIsAssistanceModalOpen, addAssistanceRequest, selectedLocation } = useDisaster();
+  const { isAssistanceModalOpen, setIsAssistanceModalOpen, addAssistanceRequest, selectedLocation, t } = useDisaster();
 
   const [type, setType] = useState<SpecialAssistanceRequest['type']>('Elderly / Senior Care');
   const [name, setName] = useState('');
@@ -57,10 +57,10 @@ export const SpecialAssistanceModal: React.FC = () => {
           </div>
           <div>
             <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
-              Request Special Evacuation Assistance
+              {t('specialAssistanceTitle')}
             </h2>
             <p className="text-xs text-slate-500">
-              For senior citizens, mobility-impaired individuals, medical patients, or infants needing priority rescue.
+              {t('specialAssistanceDesc')}
             </p>
           </div>
         </div>
@@ -70,7 +70,7 @@ export const SpecialAssistanceModal: React.FC = () => {
           {/* Assistance Category */}
           <div className="space-y-1.5">
             <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              Assistance Category
+              {t('assistanceType')}
             </label>
             <select
               value={type}
@@ -89,7 +89,7 @@ export const SpecialAssistanceModal: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                Contact Person Name
+                {t('fullName')}
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -106,7 +106,7 @@ export const SpecialAssistanceModal: React.FC = () => {
 
             <div className="space-y-1.5">
               <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                Phone Number
+                {t('phoneNo')}
               </label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -125,7 +125,7 @@ export const SpecialAssistanceModal: React.FC = () => {
           {/* Location Landmark */}
           <div className="space-y-1.5">
             <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              Exact Address / Landmark
+              {t('locationAddress')}
             </label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -143,7 +143,7 @@ export const SpecialAssistanceModal: React.FC = () => {
           {/* Priority Level */}
           <div className="space-y-1.5">
             <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              Priority Level
+              {t('priorityLevel')}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {(['Critical Evacuation', 'Medical Priority', 'Standard Assistance'] as const).map(p => (
@@ -166,7 +166,7 @@ export const SpecialAssistanceModal: React.FC = () => {
           {/* Additional Notes */}
           <div className="space-y-1.5">
             <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              Special Medical / Mobility Notes
+              {t('additionalDetails')}
             </label>
             <textarea
               rows={2}
@@ -183,7 +183,7 @@ export const SpecialAssistanceModal: React.FC = () => {
             className="w-full flex items-center justify-center gap-2 h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm shadow-lg transition-colors mt-2"
           >
             <ShieldAlert className="h-5 w-5" />
-            <span>SUBMIT SPECIAL ASSISTANCE REQUEST</span>
+            <span>{t('submitAssistanceReq')}</span>
           </button>
 
         </form>

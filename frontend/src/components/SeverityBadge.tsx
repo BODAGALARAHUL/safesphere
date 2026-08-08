@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { SeverityLevel } from '@/data/disastersData';
-import { AlertTriangle, AlertCircle, Info, ShieldCheck, AlertOctagon } from 'lucide-react';
+import { useDisaster } from '@/context/DisasterContext';
+import { AlertTriangle, AlertCircle, ShieldCheck, AlertOctagon } from 'lucide-react';
 
 interface SeverityBadgeProps {
   severity: SeverityLevel;
@@ -11,12 +12,14 @@ interface SeverityBadgeProps {
 }
 
 export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, className = '', size = 'md' }) => {
+  const { t } = useDisaster();
+
   const getBadgeConfig = () => {
     switch (severity) {
       case 'CRITICAL':
         return {
           icon: AlertTriangle,
-          label: 'RED: CRITICAL THREAT',
+          label: t('severityCritical'),
           bg: 'bg-red-50 dark:bg-red-950/60',
           text: 'text-red-700 dark:text-red-300',
           border: 'border-red-300 dark:border-red-800',
@@ -25,7 +28,7 @@ export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, classNam
       case 'HIGH_RISK':
         return {
           icon: AlertOctagon,
-          label: 'ORANGE: HIGH RISK',
+          label: t('severityHigh'),
           bg: 'bg-orange-50 dark:bg-orange-950/60',
           text: 'text-orange-800 dark:text-orange-300',
           border: 'border-orange-300 dark:border-orange-800',
@@ -34,7 +37,7 @@ export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, classNam
       case 'MODERATE':
         return {
           icon: AlertCircle,
-          label: 'YELLOW: MODERATE (MAY BE)',
+          label: t('severityModerate'),
           bg: 'bg-amber-50 dark:bg-amber-950/60',
           text: 'text-amber-800 dark:text-amber-300',
           border: 'border-amber-300 dark:border-amber-800',
@@ -44,7 +47,7 @@ export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, classNam
       default:
         return {
           icon: ShieldCheck,
-          label: 'GREEN: SAFE AREA',
+          label: t('severitySafe'),
           bg: 'bg-emerald-50 dark:bg-emerald-950/60',
           text: 'text-emerald-800 dark:text-emerald-300',
           border: 'border-emerald-300 dark:border-emerald-800',

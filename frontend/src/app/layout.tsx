@@ -34,11 +34,12 @@ export const viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 pb-20 md:pb-0">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 w-full max-w-full overflow-x-hidden">
         <DisasterProvider>
           <AppHeader />
           <OfflineBanner />
-          <div className="flex-1 w-full">{children}</div>
+          {/* Main Content Area with generous bottom padding so bottom fixed navbar never covers buttons */}
+          <div className="flex-1 w-full max-w-full overflow-x-hidden pb-28 md:pb-8">{children}</div>
           <MobileNavigation />
           <ClientSOSModal />
           <NotificationCenter />

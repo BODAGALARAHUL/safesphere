@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { useDisaster } from '@/context/DisasterContext';
-import { WifiOff, Database, Check } from 'lucide-react';
+import { WifiOff, Database } from 'lucide-react';
 
 export const OfflineBanner: React.FC = () => {
-  const { isOffline, toggleOfflineMode } = useDisaster();
+  const { isOffline, toggleOfflineMode, t } = useDisaster();
 
   if (!isOffline) return null;
 
@@ -18,14 +18,14 @@ export const OfflineBanner: React.FC = () => {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
           </span>
           <WifiOff className="h-4 w-4 text-amber-400 shrink-0" />
-          <span className="text-amber-300 font-extrabold uppercase tracking-wider">OFFLINE & LOW INTERNET MODE:</span>
-          <span>Live emergency data & maps served from local device cache.</span>
+          <span className="text-amber-300 font-extrabold uppercase tracking-wider">OFFLINE:</span>
+          <span>{t('offlineBannerNotice')}</span>
         </div>
 
         <div className="flex items-center gap-3 shrink-0 text-[11px]">
           <span className="inline-flex items-center gap-1 text-emerald-400">
             <Database className="h-3.5 w-3.5" />
-            <span>Local Sync Active</span>
+            <span>Local Cache Active</span>
           </span>
 
           <button

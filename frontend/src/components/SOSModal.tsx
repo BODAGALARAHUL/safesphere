@@ -6,7 +6,7 @@ import { useDisaster } from '@/context/DisasterContext';
 import { X, Phone, Share2, MapPin, AlertOctagon, CheckCircle2, Volume2, VolumeX, ShieldAlert } from 'lucide-react';
 
 export const SOSModal: React.FC = () => {
-  const { isSOSOpen, setIsSOSOpen, selectedLocation, isAudioSirenPlaying, toggleAudioSiren } = useDisaster();
+  const { isSOSOpen, setIsSOSOpen, selectedLocation, isAudioSirenPlaying, toggleAudioSiren, t } = useDisaster();
   
   const [holdProgress, setHoldProgress] = useState<number>(0);
   const [isActivated, setIsActivated] = useState<boolean>(false);
@@ -82,7 +82,7 @@ export const SOSModal: React.FC = () => {
         <div className="flex items-center gap-2 mb-4">
           <ShieldAlert className="h-6 w-6 text-red-600 animate-pulse shrink-0" />
           <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
-            Emergency SOS Assistance
+            {t('sosModalTitle')}
           </h2>
         </div>
 
@@ -90,7 +90,7 @@ export const SOSModal: React.FC = () => {
           /* Initial State: Hold to Activate */
           <div className="flex flex-col items-center text-center py-4">
             <div className="p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl mb-6 text-xs text-red-800 dark:text-red-300 font-medium max-w-sm">
-              Press and hold the button below for 2.5 seconds to dispatch emergency alerts and broadcast your location.
+              {t('sosModalSubtitle')}
             </div>
 
             {/* Circular Hold Button */}
@@ -189,7 +189,7 @@ export const SOSModal: React.FC = () => {
               className="flex items-center justify-center gap-3 h-14 rounded-xl bg-red-600 hover:bg-red-700 text-white text-lg font-black shadow-lg transition-colors focus:outline-none focus:ring-4 focus:ring-red-400"
             >
               <Phone className="h-6 w-6" />
-              <span>CALL 112 NATIONAL EMERGENCY NOW</span>
+              <span>{t('confirmSOSCall')}</span>
             </a>
 
             {/* Secondary Actions */}
@@ -220,7 +220,7 @@ export const SOSModal: React.FC = () => {
                 className="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 <MapPin className="h-4 w-4 text-emerald-600" />
-                <span>Find Nearest Shelter</span>
+                <span>{t('findSafeLocation')}</span>
               </Link>
             </div>
 

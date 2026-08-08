@@ -7,7 +7,7 @@ import { SeverityBadge } from '@/components/SeverityBadge';
 import { AlertCard } from '@/components/AlertCard';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { MOCK_SAFE_ZONES } from '@/data/safeZonesData';
-import { MOCK_DISASTER_ALERTS } from '@/data/disastersData';
+import { MOCK_DISASTER_ALERTS, getLocalizedAlert } from '@/data/disastersData';
 import {
   ShieldCheck,
   AlertTriangle,
@@ -20,7 +20,6 @@ import {
   Navigation,
   Clock,
   ChevronRight,
-  Flame,
   Hospital,
   Home as HomeIcon,
   LifeBuoy
@@ -35,20 +34,22 @@ export default function HomePage() {
     prepPercentage,
     completedPrepCount,
     totalPrepCount,
+    currentLanguage,
     t
   } = useDisaster();
 
+  const localizedActiveAlert = getLocalizedAlert(activeAlert, currentLanguage);
   const nearbyShelter = MOCK_SAFE_ZONES[0];
   const nearbyHospital = MOCK_SAFE_ZONES[1];
 
   return (
-    <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-8">
+    <main className="w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8">
       
       {/* 1. DYNAMIC SAFETY STATE HEADER BLOCK */}
       <ScrollReveal delayMs={50}>
         {!isThreatMode ? (
           /* NORMAL / SAFE STATE */
-          <div className="relative overflow-hidden rounded-2xl bg-emerald-950 text-white p-6 sm:p-8 border border-emerald-800 shadow-md">
+          <div className="relative overflow-hidden rounded-2xl bg-emerald-950 text-white p-4 sm:p-8 border border-emerald-800 shadow-md">
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/80 text-emerald-300 text-xs font-semibold border border-emerald-700">
@@ -56,16 +57,16 @@ export default function HomePage() {
                   <span>{t('areaMonitoring')}</span>
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-3 text-white">
-                  <ShieldCheck className="h-8 w-8 text-emerald-400 shrink-0" />
+                <h1 className="text-xl sm:text-3xl font-black tracking-tight flex items-center gap-2.5 text-white">
+                  <ShieldCheck className="h-7 w-7 sm:h-8 sm:w-8 text-emerald-400 shrink-0" />
                   <span>{t('areaSafe')}</span>
                 </h1>
 
-                <p className="text-sm text-emerald-200 max-w-xl leading-relaxed">
+                <p className="text-xs sm:text-sm text-emerald-200 max-w-xl leading-relaxed">
                   {t('noSevereWarnings')} <span className="font-semibold text-white">{selectedLocation}</span>. {t('allSystemsNormal')}
                 </p>
 
-                <div className="flex items-center gap-4 pt-1 text-xs text-emerald-300 font-medium">
+                <div className="flex items-center gap-3 pt-1 text-xs text-emerald-300 font-medium">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" /> Updated 2 min ago
                   </span>
@@ -80,7 +81,7 @@ export default function HomePage() {
               <div className="shrink-0">
                 <Link
                   href="/preparedness"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white text-emerald-950 hover:bg-emerald-50 text-sm font-black shadow transition-all active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-white text-emerald-950 hover:bg-emerald-50 text-xs sm:text-sm font-black shadow transition-all active:scale-95"
                 >
                   <span>{t('checkPreparedness')}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -90,69 +91,72 @@ export default function HomePage() {
           </div>
         ) : (
           /* CRITICAL THREAT STATE (Active Warning Dominant Element) */
-          <div className="relative overflow-hidden rounded-2xl bg-red-950 text-white p-6 sm:p-8 border-2 border-red-600 shadow-xl animate-in fade-in duration-300">
+          <div className="relative overflow-hidden rounded-2xl bg-red-950 text-white p-4 sm:p-8 border-2 border-red-600 shadow-xl animate-in fade-in duration-300">
             <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-red-600/20 blur-3xl" />
 
-            <div className="relative z-10 space-y-5">
+            <div className="relative z-10 space-y-4 sm:space-y-5">
               
               {/* Top Banner Row */}
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <SeverityBadge severity="CRITICAL" size="lg" />
+                <SeverityBadge severity={localizedActiveAlert.severity} size="md" />
                 
-                <span className="text-xs font-mono font-bold text-red-300 bg-red-900/80 px-2.5 py-1 rounded-md border border-red-800">
-                  DISASTER CODE: GSDMA-FLD-2026
+                <span className="text-[11px] sm:text-xs font-mono font-bold text-red-300 bg-red-900/80 px-2 py-0.5 rounded border border-red-800">
+                  {t('disasterCode')}: GSDMA-FLD-2026
                 </span>
               </div>
 
               {/* Alert Headline */}
               <div>
-                <div className="text-xs uppercase tracking-widest font-black text-red-400 mb-1">
+                <div className="text-[11px] uppercase tracking-widest font-black text-red-400 mb-1">
                   {t('highRiskAlert')}
                 </div>
-                <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                  {activeAlert.title}
+                <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+                  {localizedActiveAlert.title}
                 </h1>
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-red-200 font-medium mt-2">
-                  <MapPin className="h-4 w-4 text-red-400 shrink-0" />
-                  <span>{activeAlert.location}</span>
-                  <span className="opacity-60">•</span>
-                  <Clock className="h-4 w-4 text-red-400 shrink-0" />
-                  <span>{activeAlert.issuedAt}</span>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm text-red-200 font-medium mt-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <MapPin className="h-3.5 w-3.5 text-red-400 shrink-0" />
+                    <span className="truncate">{localizedActiveAlert.location}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                    <Clock className="h-3.5 w-3.5 text-red-400 shrink-0" />
+                    <span>{localizedActiveAlert.issuedAt}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Explanation */}
-              <p className="text-sm sm:text-base text-red-100 max-w-3xl leading-relaxed border-l-2 border-red-500 pl-4 py-0.5">
-                {activeAlert.summary}
+              <p className="text-xs sm:text-base text-red-100 max-w-3xl leading-relaxed border-l-2 border-red-500 pl-3 py-0.5">
+                {localizedActiveAlert.summary}
               </p>
 
               {/* DOMINANT EMERGENCY ACTION CALLS */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-1">
                 
                 {/* CTA 1: What Should I Do? */}
                 <Link
-                  href={`/alerts/${activeAlert.id}`}
-                  className="flex items-center justify-center gap-2 h-13 px-4 rounded-xl bg-white text-red-950 hover:bg-red-50 text-sm font-black shadow-lg transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-400"
+                  href={`/alerts/${localizedActiveAlert.id}`}
+                  className="flex items-center justify-center gap-2 h-11 sm:h-13 px-4 rounded-xl bg-white text-red-950 hover:bg-red-50 text-xs sm:text-sm font-black shadow-lg transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-400"
                 >
-                  <BookOpen className="h-5 w-5 text-red-600" />
+                  <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0" />
                   <span>{t('whatShouldIDo')}</span>
                 </Link>
 
                 {/* CTA 2: Find Safe Location */}
                 <Link
                   href="/safe-zones"
-                  className="flex items-center justify-center gap-2 h-13 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black shadow-lg transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-emerald-400"
+                  className="flex items-center justify-center gap-2 h-11 sm:h-13 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black shadow-lg transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-emerald-400"
                 >
-                  <Navigation className="h-5 w-5" />
+                  <Navigation className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                   <span>{t('findSafeLocation')}</span>
                 </Link>
 
                 {/* CTA 3: Call 112 */}
                 <a
                   href="tel:112"
-                  className="flex items-center justify-center gap-2 h-13 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-black shadow-lg border border-red-500 transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-400"
+                  className="flex items-center justify-center gap-2 h-11 sm:h-13 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-black shadow-lg border border-red-500 transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-400"
                 >
-                  <Phone className="h-5 w-5" />
+                  <Phone className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                   <span>{t('call112')}</span>
                 </a>
 
@@ -167,58 +171,58 @@ export default function HomePage() {
       <ScrollReveal delayMs={100}>
         <section className="space-y-3">
           <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
-            WHAT DO YOU NEED RIGHT NOW?
+            {t('whatDoYouNeed')}
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
             
             {/* Quick Action 1: SOS */}
             <button
               type="button"
               onClick={() => setIsSOSOpen(true)}
-              className="flex flex-col items-start p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/80 text-red-950 dark:text-red-100 hover:bg-red-100/70 transition-all text-left group"
+              className="flex flex-col items-start p-3.5 sm:p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/80 text-red-950 dark:text-red-100 hover:bg-red-100/70 transition-all text-left group"
             >
-              <div className="p-2.5 rounded-lg bg-red-600 text-white mb-3 shadow-sm group-hover:scale-105 transition-transform">
-                <AlertTriangle className="h-5 w-5" />
+              <div className="p-2 sm:p-2.5 rounded-lg bg-red-600 text-white mb-2 sm:mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <span className="font-extrabold text-sm sm:text-base leading-tight">{t('emergencySOS')}</span>
-              <span className="text-[11px] text-red-700 dark:text-red-300 mt-1">{t('oneTap112')}</span>
+              <span className="font-extrabold text-xs sm:text-base leading-tight">{t('emergencySOS')}</span>
+              <span className="text-[10px] sm:text-[11px] text-red-700 dark:text-red-300 mt-0.5 sm:mt-1">{t('oneTap112')}</span>
             </button>
 
             {/* Quick Action 2: Safe Zones */}
             <Link
               href="/safe-zones"
-              className="flex flex-col items-start p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 text-emerald-950 dark:text-emerald-100 hover:bg-emerald-100/70 transition-all text-left group"
+              className="flex flex-col items-start p-3.5 sm:p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 text-emerald-950 dark:text-emerald-100 hover:bg-emerald-100/70 transition-all text-left group"
             >
-              <div className="p-2.5 rounded-lg bg-emerald-600 text-white mb-3 shadow-sm group-hover:scale-105 transition-transform">
-                <MapPin className="h-5 w-5" />
+              <div className="p-2 sm:p-2.5 rounded-lg bg-emerald-600 text-white mb-2 sm:mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <span className="font-extrabold text-sm sm:text-base leading-tight">{t('findSafety')}</span>
-              <span className="text-[11px] text-emerald-700 dark:text-emerald-300 mt-1">{t('sheltersAndHospitals')}</span>
+              <span className="font-extrabold text-xs sm:text-base leading-tight">{t('findSafety')}</span>
+              <span className="text-[10px] sm:text-[11px] text-emerald-700 dark:text-emerald-300 mt-0.5 sm:mt-1">{t('sheltersAndHospitals')}</span>
             </Link>
 
             {/* Quick Action 3: Active Alerts */}
             <Link
               href="/alerts"
-              className="flex flex-col items-start p-4 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/80 text-sky-950 dark:text-sky-100 hover:bg-sky-100/70 transition-all text-left group"
+              className="flex flex-col items-start p-3.5 sm:p-4 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/80 text-sky-950 dark:text-sky-100 hover:bg-sky-100/70 transition-all text-left group"
             >
-              <div className="p-2.5 rounded-lg bg-sky-600 text-white mb-3 shadow-sm group-hover:scale-105 transition-transform">
-                <Shield className="h-5 w-5" />
+              <div className="p-2 sm:p-2.5 rounded-lg bg-sky-600 text-white mb-2 sm:mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                <Shield className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <span className="font-extrabold text-sm sm:text-base leading-tight">{t('disasterAlerts')}</span>
-              <span className="text-[11px] text-sky-700 dark:text-sky-300 mt-1">{t('regionalFeed')}</span>
+              <span className="font-extrabold text-xs sm:text-base leading-tight">{t('disasterAlerts')}</span>
+              <span className="text-[10px] sm:text-[11px] text-sky-700 dark:text-sky-300 mt-0.5 sm:mt-1">{t('regionalFeed')}</span>
             </Link>
 
             {/* Quick Action 4: Disaster Guidance */}
             <Link
               href="/disasters"
-              className="flex flex-col items-start p-4 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-200/70 transition-all text-left group"
+              className="flex flex-col items-start p-3.5 sm:p-4 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-200/70 transition-all text-left group"
             >
-              <div className="p-2.5 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 mb-3 shadow-sm group-hover:scale-105 transition-transform">
-                <BookOpen className="h-5 w-5" />
+              <div className="p-2 sm:p-2.5 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 mb-2 sm:mb-3 shadow-sm group-hover:scale-105 transition-transform">
+                <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <span className="font-extrabold text-sm sm:text-base leading-tight">{t('actionLibrary')}</span>
-              <span className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{t('floodCycloneFire')}</span>
+              <span className="font-extrabold text-xs sm:text-base leading-tight">{t('actionLibrary')}</span>
+              <span className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 mt-0.5 sm:mt-1">{t('floodCycloneFire')}</span>
             </Link>
 
           </div>
@@ -227,18 +231,18 @@ export default function HomePage() {
 
       {/* 3. PREPAREDNESS PROGRESS CARD (Scroll Reveal) */}
       <ScrollReveal delayMs={150}>
-        <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
+        <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1.5 flex-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                  <h3 className="font-bold text-base text-slate-900 dark:text-white">
-                    EMERGENCY PREPAREDNESS
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                  <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                    {t('emergencyPreparedness')}
                   </h3>
                 </div>
-                <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">
-                  {prepPercentage}% Complete ({completedPrepCount}/{totalPrepCount})
+                <span className="text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-400 shrink-0">
+                  {prepPercentage}% ({completedPrepCount}/{totalPrepCount})
                 </span>
               </div>
 
@@ -250,8 +254,8 @@ export default function HomePage() {
                 />
               </div>
 
-              <p className="text-xs text-slate-600 dark:text-slate-400 pt-1">
-                Keep your drinking water, document vault, and first-aid kit ready before severe weather strikes.
+              <p className="text-xs text-slate-600 dark:text-slate-400 pt-1 leading-relaxed">
+                {t('prepSubtitle')}
               </p>
             </div>
 
@@ -259,7 +263,7 @@ export default function HomePage() {
               href="/preparedness"
               className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold hover:bg-slate-100 transition-colors shrink-0"
             >
-              <span>Continue Checklist</span>
+              <span>{t('continueChecklist')}</span>
               <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
@@ -271,13 +275,13 @@ export default function HomePage() {
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              NEARBY SAFE LOCATIONS
+              {t('nearbySafeLocations')}
             </h2>
             <Link
               href="/safe-zones"
               className="text-xs font-semibold text-slate-900 dark:text-white hover:underline flex items-center gap-1"
             >
-              View Map & All Locations <ChevronRight className="h-3.5 w-3.5" />
+              {t('viewMapAllLocations')} <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
@@ -338,13 +342,13 @@ export default function HomePage() {
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              ACTIVE REGIONAL ALERTS
+              {t('activeRegionalAlerts')}
             </h2>
             <Link
               href="/alerts"
               className="text-xs font-semibold text-slate-900 dark:text-white hover:underline flex items-center gap-1"
             >
-              See All Alerts ({MOCK_DISASTER_ALERTS.length}) <ChevronRight className="h-3.5 w-3.5" />
+              {t('seeAllAlerts')} ({MOCK_DISASTER_ALERTS.length}) <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
@@ -360,37 +364,37 @@ export default function HomePage() {
 
       {/* 6. EMERGENCY NUMBERS BAR (Scroll Reveal) */}
       <ScrollReveal delayMs={300}>
-        <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-900 text-white p-5 shadow-sm">
+        <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-900 text-white p-4 sm:p-5 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-red-400 font-bold text-xs uppercase tracking-wider">
                 <LifeBuoy className="h-4 w-4" />
-                <span>OFFICIAL EMERGENCY HELPLINES</span>
+                <span>{t('officialHelplines')}</span>
               </div>
-              <p className="text-xs text-slate-300 mt-1">
-                National Emergency Response System (112) is available 24x7 for instant police, medical, and fire dispatch.
+              <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                {t('helplineSubtitle')}
               </p>
             </div>
 
             <div className="flex flex-wrap gap-2 shrink-0">
               <a
                 href="tel:112"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-black shadow transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-black shadow transition-colors"
               >
                 <Phone className="h-4 w-4" />
-                <span>CALL 112</span>
+                <span>{t('call112Now')}</span>
               </a>
               <a
                 href="tel:108"
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700 transition-colors"
               >
-                <span>108 Medical</span>
+                <span>{t('medical108')}</span>
               </a>
               <a
                 href="tel:101"
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700 transition-colors"
               >
-                <span>101 Fire</span>
+                <span>{t('fire101')}</span>
               </a>
             </div>
           </div>

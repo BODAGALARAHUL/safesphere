@@ -3,8 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { MOCK_DISASTER_ALERTS } from '@/data/disastersData';
+import { MOCK_DISASTER_ALERTS, getLocalizedAlert } from '@/data/disastersData';
 import { SeverityBadge } from '@/components/SeverityBadge';
+import { useDisaster } from '@/context/DisasterContext';
 import {
   ArrowLeft,
   MapPin,
@@ -13,16 +14,17 @@ import {
   AlertOctagon,
   Phone,
   Navigation,
-  Shield,
-  Share2
+  Shield
 } from 'lucide-react';
 
 export default function AlertDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { currentLanguage, t } = useDisaster();
   const alertId = params?.id as string;
 
-  const alert = MOCK_DISASTER_ALERTS.find(a => a.id === alertId) || MOCK_DISASTER_ALERTS[0];
+  const rawAlert = MOCK_DISASTER_ALERTS.find(a => a.id === alertId) || MOCK_DISASTER_ALERTS[0];
+  const alert = getLocalizedAlert(rawAlert, currentLanguage);
 
   return (
     <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-6">
@@ -56,7 +58,7 @@ export default function AlertDetailPage() {
           <div>•</div>
           <div className="flex items-center gap-1.5">
             <Clock className="h-4 w-4 text-slate-400 shrink-0" />
-            <span>Issued {alert.issuedAt}</span>
+            <span>{t('issuedAt')} {alert.issuedAt}</span>
           </div>
           <div>•</div>
           <div className="flex items-center gap-1.5 text-red-600 font-bold">
@@ -85,7 +87,7 @@ export default function AlertDetailPage() {
         <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300">
           <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
           <h2 className="text-xs font-black uppercase tracking-wider">
-            WHAT YOU SHOULD DO RIGHT NOW
+            {t('recommendedActions')}
           </h2>
         </div>
 
@@ -105,7 +107,7 @@ export default function AlertDetailPage() {
       <section className="rounded-2xl border-2 border-red-500 bg-red-50 dark:bg-red-950/40 p-6 shadow-sm space-y-3">
         <div className="flex items-center gap-2 text-red-900 dark:text-red-200 font-black">
           <AlertOctagon className="h-5 w-5 text-red-600 shrink-0" />
-          <h2 className="text-xs uppercase tracking-wider">STRICTLY AVOID</h2>
+          <h2 className="text-xs uppercase tracking-wider">{t('thingsToAvoid')}</h2>
         </div>
 
         <ul className="space-y-2">
@@ -125,7 +127,7 @@ export default function AlertDetailPage() {
           className="flex items-center justify-center gap-2 h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-md transition-colors"
         >
           <Navigation className="h-5 w-5" />
-          <span>FIND NEAREST SAFE LOCATION</span>
+          <span>{t('findSafeLocation')}</span>
         </Link>
 
         <a
@@ -133,7 +135,7 @@ export default function AlertDetailPage() {
           className="flex items-center justify-center gap-2 h-14 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-md transition-colors"
         >
           <Phone className="h-5 w-5" />
-          <span>CALL 112 EMERGENCY</span>
+          <span>{t('call112')}</span>
         </a>
       </section>
 

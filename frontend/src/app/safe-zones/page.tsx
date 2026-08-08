@@ -1,22 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MOCK_SAFE_ZONES, SafeZone, SafeZoneType } from '@/data/safeZonesData';
+import { MOCK_SAFE_ZONES, SafeZone } from '@/data/safeZonesData';
 import { SafeZoneMap } from '@/components/SafeZoneMap';
 import { SafeZoneBottomSheet } from '@/components/SafeZoneBottomSheet';
+import { useDisaster } from '@/context/DisasterContext';
 import { MapPin, Navigation, Home, Hospital, Shield, Flame, Search } from 'lucide-react';
 
 export default function SafeZonesPage() {
+  const { t } = useDisaster();
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedZone, setSelectedZone] = useState<SafeZone | undefined>(MOCK_SAFE_ZONES[0]);
 
   const categories = [
-    { id: 'All', label: 'All Places', icon: MapPin },
-    { id: 'Shelter', label: 'Shelters', icon: Home },
-    { id: 'Hospital', label: 'Hospitals', icon: Hospital },
-    { id: 'Police', label: 'Police', icon: Shield },
-    { id: 'Fire', label: 'Fire Dept', icon: Flame },
+    { id: 'All', label: t('allPlaces'), icon: MapPin },
+    { id: 'Shelter', label: t('shelters'), icon: Home },
+    { id: 'Hospital', label: t('hospitals'), icon: Hospital },
+    { id: 'Police', label: t('police'), icon: Shield },
+    { id: 'Fire', label: t('fireDept'), icon: Flame },
   ];
 
   const filteredSafeZones = MOCK_SAFE_ZONES.filter(zone => {
@@ -37,13 +39,13 @@ export default function SafeZonesPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 uppercase tracking-wider">
             <Navigation className="h-4 w-4" />
-            <span>EVACUATION & RELIEF NETWORK</span>
+            <span>{t('evacuationNetwork')}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Nearby Safe Locations
+            {t('nearbySafeZonesTitle')}
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Emergency shelters, trauma hospitals, and disaster response dispatch centers near Paldi, Ahmedabad.
+            {t('nearbySafeZonesSubtitle')}
           </p>
         </div>
       </div>
@@ -56,7 +58,7 @@ export default function SafeZonesPage() {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search shelters, hospitals, or areas..."
+            placeholder={t('searchSafeZonesPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 transition-all shadow-sm"
@@ -107,10 +109,10 @@ export default function SafeZonesPage() {
         <div className="lg:col-span-5 order-2 lg:order-1 space-y-3">
           <div className="flex items-center justify-between px-1">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              AVAILABLE LOCATIONS ({filteredSafeZones.length})
+              {t('availableLocations')} ({filteredSafeZones.length})
             </span>
             <span className="text-xs font-semibold text-emerald-600">
-              Sorted by Nearest
+              {t('sortedByNearest')}
             </span>
           </div>
 
