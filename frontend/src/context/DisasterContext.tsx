@@ -4,6 +4,18 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { MOCK_DISASTER_ALERTS, DisasterAlert } from '@/data/disastersData';
 import { PREPAREDNESS_ITEMS } from '@/data/preparednessData';
 
+export interface SpecialAssistanceRequest {
+  id: string;
+  type: 'Elderly / Senior Care' | 'Wheelchair / Mobility Escort' | 'Medical Oxygen / ICU Support' | 'Infant / Maternal Care' | 'Pet Evacuation';
+  name: string;
+  phone: string;
+  location: string;
+  details: string;
+  priority: 'Critical Evacuation' | 'Medical Priority' | 'Standard Assistance';
+  status: 'Received · Rescue Dispatched' | 'Assigned to Paldi Shelter Team' | 'Evacuation Complete';
+  timestamp: string;
+}
+
 interface DisasterContextType {
   isThreatMode: boolean;
   setIsThreatMode: (val: boolean) => void;
@@ -24,6 +36,13 @@ interface DisasterContextType {
   setSelectedSafeZoneFilter: (filter: string) => void;
   isAudioSirenPlaying: boolean;
   toggleAudioSiren: () => void;
+  // Notification Drawer & Special Assistance Requests
+  isNotificationDrawerOpen: boolean;
+  setIsNotificationDrawerOpen: (open: boolean) => void;
+  isAssistanceModalOpen: boolean;
+  setIsAssistanceModalOpen: (open: boolean) => void;
+  assistanceRequests: SpecialAssistanceRequest[];
+  addAssistanceRequest: (req: Omit<SpecialAssistanceRequest, 'id' | 'status' | 'timestamp'>) => void;
 }
 
 const DisasterContext = createContext<DisasterContextType | undefined>(undefined);
@@ -36,6 +55,59 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [selectedSafeZoneFilter, setSelectedSafeZoneFilter] = useState<string>('All');
   const [isAudioSirenPlaying, setIsAudioSirenPlaying] = useState<boolean>(false);
   const [isOffline, setIsOffline] = useState<boolean>(false);
+
+  // Notification Drawer & Special Assistance Modal
+  const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState<boolean>(false);
+  const [isAssistanceModalOpen, setIsAssistanceModalOpen] = useState<boolean>(false);
+
+  // Initial mock assistance requests
+  const [assistanceRequests, setAssistanceRequests] = useState<SpecialAssistanceRequest[]>(() => [
+    {
+      id: 'req-01',
+      type: 'Elderly / Senior Care',
+      name: 'Ramesh Patel (Senior Citizen, Age 78)',
+      phone: '+91 98790 12345',
+      location: 'Flat 302, Ankur Apartments, Paldi, Ahmedabad',
+      details: 'Wheelchair assistance required to move down from 3rd floor during flood water rise.',
+      priority: 'Critical Evacuation',
+      status: 'Assigned to Paldi Shelter Team',
+      timestamp: '15 min ago',
+    },
+  ]);
+
+  // Load saved assistance requests from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('safesphere_assistance_reqs');
+      if (saved) {
+        setAssistanceRequests(JSON.parse(saved));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const addAssistanceRequest = (reqData: Omit<SpecialAssistanceRequest, 'id' | 'status' | 'timestamp'>) => {
+    const newReq: SpecialAssistanceRequest = {
+      ...reqData,
+      id: `req-${Date.now()}`,
+      status: 'Received · Rescue Dispatched',
+      timestamp: 'Just now',
+    };
+
+    setAssistanceRequests(prev => {
+      const next = [newReq, ...prev];
+      try {
+        localStorage.setItem('safesphere_assistance_reqs', JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+
+    // Open notification drawer automatically to show confirmation
+    setIsNotificationDrawerOpen(true);
+  };
 
   // Monitor network connectivity & handle offline sync
   useEffect(() => {
@@ -118,6 +190,12 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSelectedSafeZoneFilter,
         isAudioSirenPlaying,
         toggleAudioSiren,
+        isNotificationDrawerOpen,
+        setIsNotificationDrawerOpen,
+        isAssistanceModalOpen,
+        setIsAssistanceModalOpen,
+        assistanceRequests,
+        addAssistanceRequest,
       }}
     >
       {children}

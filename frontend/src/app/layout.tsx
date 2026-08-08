@@ -6,6 +6,8 @@ import { AppHeader } from '@/components/AppHeader';
 import { MobileNavigation } from '@/components/MobileNavigation';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { ClientSOSModal } from '@/components/ClientSOSModal';
+import { NotificationCenter } from '@/components/NotificationCenter';
+import { SpecialAssistanceModal } from '@/components/SpecialAssistanceModal';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -39,6 +41,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="flex-1 w-full">{children}</div>
           <MobileNavigation />
           <ClientSOSModal />
+          <NotificationCenter />
+          <SpecialAssistanceModal />
         </DisasterProvider>
       </body>
     </html>

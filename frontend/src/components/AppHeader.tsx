@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useDisaster } from '@/context/DisasterContext';
-import { Shield, MapPin, Bell, AlertTriangle, ShieldCheck, ChevronDown, Check, WifiOff } from 'lucide-react';
+import { Shield, MapPin, Bell, AlertTriangle, ShieldCheck, ChevronDown, Check, WifiOff, HeartHandshake } from 'lucide-react';
 
 const LOCATIONS = [
   'Ahmedabad (Paldi / Vasna)',
@@ -14,7 +14,17 @@ const LOCATIONS = [
 ];
 
 export const AppHeader: React.FC = () => {
-  const { isThreatMode, toggleThreatMode, isOffline, toggleOfflineMode, selectedLocation, setSelectedLocation, setIsSOSOpen } = useDisaster();
+  const { 
+    isThreatMode, 
+    toggleThreatMode, 
+    isOffline, 
+    toggleOfflineMode, 
+    selectedLocation, 
+    setSelectedLocation, 
+    setIsSOSOpen,
+    setIsNotificationDrawerOpen,
+    setIsAssistanceModalOpen 
+  } = useDisaster();
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
 
   return (
@@ -74,6 +84,17 @@ export const AppHeader: React.FC = () => {
 
         {/* Right: Controls & Actions */}
         <div className="flex items-center gap-1.5 shrink-0">
+          {/* Special Assistance Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsAssistanceModalOpen(true)}
+            className="flex items-center justify-center h-8 px-2 text-xs font-bold rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300 hover:bg-red-100 transition-colors"
+            title="Request Special Assistance (Senior / Medical)"
+          >
+            <HeartHandshake className="h-3.5 w-3.5 text-red-600 shrink-0" />
+            <span className="hidden xl:inline ml-1">Special Assistance</span>
+          </button>
+
           {/* Offline Mode Toggle Button */}
           <button
             type="button"
@@ -122,11 +143,12 @@ export const AppHeader: React.FC = () => {
             SOS
           </button>
 
-          {/* Notifications Icon */}
-          <Link
-            href="/alerts"
+          {/* Notifications Icon Button (Triggers Notification Drawer) */}
+          <button
+            type="button"
+            onClick={() => setIsNotificationDrawerOpen(true)}
             className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:bg-slate-100 transition-colors"
-            aria-label="View alerts"
+            aria-label="View notifications and special assistance logs"
           >
             <Bell className="h-4 w-4" />
             {isThreatMode && (
@@ -135,7 +157,7 @@ export const AppHeader: React.FC = () => {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600" />
               </span>
             )}
-          </Link>
+          </button>
         </div>
 
       </div>
