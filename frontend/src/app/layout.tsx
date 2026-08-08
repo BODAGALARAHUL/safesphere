@@ -1,11 +1,15 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import dynamic from 'next/dynamic';
 import { DisasterProvider } from '@/context/DisasterContext';
 import { AppHeader } from '@/components/AppHeader';
 import { MobileNavigation } from '@/components/MobileNavigation';
-import { SOSModal } from '@/components/SOSModal';
 import { OfflineBanner } from '@/components/OfflineBanner';
+
+const SOSModal = dynamic(() => import('@/components/SOSModal').then((mod) => mod.SOSModal), {
+  ssr: false,
+});
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
