@@ -25,7 +25,7 @@ export default function AlertDetailPage() {
   const alert = MOCK_DISASTER_ALERTS.find(a => a.id === alertId) || MOCK_DISASTER_ALERTS[0];
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8 space-y-6">
+    <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-6">
       
       {/* Back Button */}
       <button

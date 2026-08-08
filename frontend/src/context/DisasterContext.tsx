@@ -8,6 +8,8 @@ interface DisasterContextType {
   isThreatMode: boolean;
   setIsThreatMode: (val: boolean) => void;
   toggleThreatMode: () => void;
+  isOffline: boolean;
+  toggleOfflineMode: () => void;
   selectedLocation: string;
   setSelectedLocation: (loc: string) => void;
   isSOSOpen: boolean;
@@ -27,13 +29,32 @@ interface DisasterContextType {
 const DisasterContext = createContext<DisasterContextType | undefined>(undefined);
 
 export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Default to false (Normal Safe state), user can toggle threat mode anytime via Header or Banner
-  const [isThreatMode, setIsThreatMode] = useState<boolean>(true); // Start in active threat demo state for instant high impact presentation
+  const [isThreatMode, setIsThreatMode] = useState<boolean>(true);
   const [selectedLocation, setSelectedLocation] = useState<string>('Ahmedabad (Paldi / Vasna)');
   const [isSOSOpen, setIsSOSOpen] = useState<boolean>(false);
   const [activeAlert] = useState<DisasterAlert>(MOCK_DISASTER_ALERTS[0]);
   const [selectedSafeZoneFilter, setSelectedSafeZoneFilter] = useState<string>('All');
   const [isAudioSirenPlaying, setIsAudioSirenPlaying] = useState<boolean>(false);
+  const [isOffline, setIsOffline] = useState<boolean>(false);
+
+  // Monitor network connectivity & handle offline sync
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    if (typeof window !== 'undefined') {
+      setIsOffline(!navigator.onLine);
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      }
+    };
+  }, []);
 
   // LocalStorage state for preparedness checklist
   const [checkedPrepItems, setCheckedPrepItems] = useState<Record<string, boolean>>(() => {
@@ -72,6 +93,7 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const prepPercentage = Math.round((completedPrepCount / totalPrepCount) * 100);
 
   const toggleThreatMode = () => setIsThreatMode(prev => !prev);
+  const toggleOfflineMode = () => setIsOffline(prev => !prev);
   const toggleAudioSiren = () => setIsAudioSirenPlaying(prev => !prev);
 
   return (
@@ -80,6 +102,8 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         isThreatMode,
         setIsThreatMode,
         toggleThreatMode,
+        isOffline,
+        toggleOfflineMode,
         selectedLocation,
         setSelectedLocation,
         isSOSOpen,

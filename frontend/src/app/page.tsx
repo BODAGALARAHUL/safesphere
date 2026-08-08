@@ -40,7 +40,7 @@ export default function HomePage() {
   const nearbyHospital = MOCK_SAFE_ZONES[1]; // SVP Hospital (2.4 km)
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 space-y-8">
+    <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-8">
       
       {/* ========================================================================= */}
       {/* 1. DYNAMIC SAFETY STATE HEADER BLOCK                                      */}

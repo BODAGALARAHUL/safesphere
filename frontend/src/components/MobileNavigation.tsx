@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useDisaster } from '@/context/DisasterContext';
-import { Home, Bell, MapPin, BookOpen, Phone, User } from 'lucide-react';
+import { Home, Bell, MapPin, BookOpen, Phone, User, ShieldAlert } from 'lucide-react';
 
 export const MobileNavigation: React.FC = () => {
   const pathname = usePathname();
@@ -13,6 +13,7 @@ export const MobileNavigation: React.FC = () => {
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/alerts', label: 'Alerts', icon: Bell },
+    { href: '/risk-levels', label: 'Risk Matrix', icon: ShieldAlert },
     { href: '/safe-zones', label: 'Safe Zones', icon: MapPin },
     { href: '/disasters', label: 'Guidance', icon: BookOpen },
     { href: '/emergency', label: 'Emergency', icon: Phone },
@@ -22,7 +23,7 @@ export const MobileNavigation: React.FC = () => {
     <>
       {/* Desktop Top Navigation Bar (Shown on md+ screens below AppHeader) */}
       <nav className="hidden md:block bg-slate-900 text-slate-100 border-b border-slate-800">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2 text-sm font-medium">
+        <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-2 text-sm font-medium">
           <div className="flex items-center gap-1">
             {navItems.map(item => {
               const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));

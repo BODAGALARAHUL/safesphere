@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useDisaster } from '@/context/DisasterContext';
-import { Shield, MapPin, Bell, AlertTriangle, ShieldCheck, ChevronDown, Check } from 'lucide-react';
+import { Shield, MapPin, Bell, AlertTriangle, ShieldCheck, ChevronDown, Check, WifiOff } from 'lucide-react';
 
 const LOCATIONS = [
   'Ahmedabad (Paldi / Vasna)',
@@ -14,13 +14,13 @@ const LOCATIONS = [
 ];
 
 export const AppHeader: React.FC = () => {
-  const { isThreatMode, toggleThreatMode, selectedLocation, setSelectedLocation, setIsSOSOpen } = useDisaster();
+  const { isThreatMode, toggleThreatMode, isOffline, toggleOfflineMode, selectedLocation, setSelectedLocation, setIsSOSOpen } = useDisaster();
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm transition-colors">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-        
+      <div className="w-full flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8">
+
         {/* Left: Brand Identity */}
         <Link href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-slate-400 rounded-md">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-sm">
@@ -72,17 +72,31 @@ export const AppHeader: React.FC = () => {
           )}
         </div>
 
-        {/* Right: Threat Toggle (Judge Demo) & Notifications */}
+        {/* Right: Threat Toggle & Offline Mode Toggle */}
         <div className="flex items-center gap-2">
+          {/* Offline Mode Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleOfflineMode}
+            className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border transition-all ${
+              isOffline
+                ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700'
+                : 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 hover:bg-slate-200'
+            }`}
+            title="Toggle Offline Network Simulation"
+          >
+            <WifiOff className="h-3.5 w-3.5 text-amber-500" />
+            <span className="hidden lg:inline">{isOffline ? 'Offline Active' : 'Offline Engine'}</span>
+          </button>
+
           {/* Threat Simulator Toggle Button for SIH Jury Demo */}
           <button
             type="button"
             onClick={toggleThreatMode}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md border transition-all ${
-              isThreatMode
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md border transition-all ${isThreatMode
                 ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800 hover:bg-red-100'
                 : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 hover:bg-emerald-100'
-            }`}
+              }`}
             title="Toggle Demo State: Safe vs Active Threat"
           >
             {isThreatMode ? (

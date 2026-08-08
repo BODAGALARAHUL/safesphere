@@ -5,6 +5,7 @@ import { DisasterProvider } from '@/context/DisasterContext';
 import { AppHeader } from '@/components/AppHeader';
 import { MobileNavigation } from '@/components/MobileNavigation';
 import { SOSModal } from '@/components/SOSModal';
+import { OfflineBanner } from '@/components/OfflineBanner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 pb-20 md:pb-0">
         <DisasterProvider>
           <AppHeader />
+          <OfflineBanner />
           <div className="flex-1 w-full">{children}</div>
           <MobileNavigation />
           <SOSModal />

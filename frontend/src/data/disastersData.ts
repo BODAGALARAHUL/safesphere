@@ -1,9 +1,10 @@
-export type SeverityLevel = 'CRITICAL' | 'WARNING' | 'ADVISORY' | 'SAFE';
+export type SeverityLevel = 'CRITICAL' | 'HIGH_RISK' | 'MODERATE' | 'SAFE';
 
 export interface DisasterAlert {
   id: string;
   disasterType: 'Flood' | 'Cyclone' | 'Earthquake' | 'Heatwave' | 'Landslide' | 'Fire';
   severity: SeverityLevel;
+  riskColor: 'red' | 'orange' | 'yellow' | 'green';
   title: string;
   location: string;
   issuedAt: string;
@@ -22,6 +23,7 @@ export const MOCK_DISASTER_ALERTS: DisasterAlert[] = [
     id: 'alert-flood-01',
     disasterType: 'Flood',
     severity: 'CRITICAL',
+    riskColor: 'red',
     title: 'FLOOD WARNING: Sabarmati River Water Level Rising',
     location: 'Ahmedabad (Paldi, Vasna & Riverfront Low-Lying Zones)',
     issuedAt: '12 min ago',
@@ -46,14 +48,15 @@ export const MOCK_DISASTER_ALERTS: DisasterAlert[] = [
   {
     id: 'alert-cyclone-02',
     disasterType: 'Cyclone',
-    severity: 'WARNING',
-    title: 'CYCLONE ADVISORY: Deep Depression in Arabian Sea',
+    severity: 'HIGH_RISK',
+    riskColor: 'orange',
+    title: 'CYCLONE WARNING: Deep Depression Intensifying in Arabian Sea',
     location: 'Coastal Gujarat (Kutch, Dwarka & Porbandar)',
     issuedAt: '45 min ago',
     timestamp: '2026-08-08T14:21:00Z',
-    summary: 'Gusty winds reaching 65-75 km/h with heavy coastal rainfall. High wave warning issued for fishing vessels.',
+    summary: 'Gusty winds reaching 85-95 km/h with heavy coastal surge. High risk of severe structural damage and tree uprooting.',
     affectedRadius: 'Coastal belt within 15 km of shoreline',
-    statusText: 'Elevated Alert - Wind speeds expected to intensify by evening.',
+    statusText: 'High Risk Alert - Storm landfall expected within 6 hours.',
     actions: [
       'Secure loose outdoor roofs, tin sheets, and temporary structures.',
       'Charge cell phones, emergency lights, and power banks.',
@@ -69,14 +72,15 @@ export const MOCK_DISASTER_ALERTS: DisasterAlert[] = [
   {
     id: 'alert-heat-03',
     disasterType: 'Heatwave',
-    severity: 'ADVISORY',
-    title: 'SEVERE HEATWAVE ADVISORY: Peak Temperatures Exceeding 44°C',
+    severity: 'MODERATE',
+    riskColor: 'yellow',
+    title: 'WEATHER ADVISORY: Potential Heatwave Conditions (May or May Not Intensify)',
     location: 'Central & Inland Gujarat',
     issuedAt: '2 hours ago',
     timestamp: '2026-08-08T13:06:00Z',
-    summary: 'Extreme afternoon temperatures expected between 12:00 PM and 4:00 PM. Risk of severe dehydration and heat exhaustion.',
+    summary: 'Moderate heat advisory: Temperatures may reach 42°C to 44°C during peak afternoon hours. Stay informed on changing weather patterns.',
     affectedRadius: 'Entire metropolitan area',
-    statusText: 'Active Advisory - Take heat mitigation measures during peak sun hours.',
+    statusText: 'Moderate Risk (Advisory) - Pay attention to afternoon temperature bulletins.',
     actions: [
       'Drink ORS, buttermilk, and clean water frequently even if not thirsty.',
       'Wear loose, light-colored cotton clothing and cover head outdoors.'

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { SeverityLevel } from '@/data/disastersData';
-import { AlertTriangle, AlertCircle, Info, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, AlertCircle, Info, ShieldCheck, AlertOctagon } from 'lucide-react';
 
 interface SeverityBadgeProps {
   severity: SeverityLevel;
@@ -16,38 +16,38 @@ export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, classNam
       case 'CRITICAL':
         return {
           icon: AlertTriangle,
-          label: 'CRITICAL THREAT',
-          bg: 'bg-red-50 dark:bg-red-950/50',
+          label: 'RED: CRITICAL THREAT',
+          bg: 'bg-red-50 dark:bg-red-950/60',
           text: 'text-red-700 dark:text-red-300',
-          border: 'border-red-200 dark:border-red-800',
+          border: 'border-red-300 dark:border-red-800',
           indicatorBg: 'bg-red-600',
         };
-      case 'WARNING':
+      case 'HIGH_RISK':
+        return {
+          icon: AlertOctagon,
+          label: 'ORANGE: HIGH RISK',
+          bg: 'bg-orange-50 dark:bg-orange-950/60',
+          text: 'text-orange-800 dark:text-orange-300',
+          border: 'border-orange-300 dark:border-orange-800',
+          indicatorBg: 'bg-orange-500',
+        };
+      case 'MODERATE':
         return {
           icon: AlertCircle,
-          label: 'ELEVATED WARNING',
-          bg: 'bg-amber-50 dark:bg-amber-950/50',
+          label: 'YELLOW: MODERATE (MAY BE)',
+          bg: 'bg-amber-50 dark:bg-amber-950/60',
           text: 'text-amber-800 dark:text-amber-300',
-          border: 'border-amber-200 dark:border-amber-800',
+          border: 'border-amber-300 dark:border-amber-800',
           indicatorBg: 'bg-amber-500',
-        };
-      case 'ADVISORY':
-        return {
-          icon: Info,
-          label: 'ADVISORY NOTICE',
-          bg: 'bg-sky-50 dark:bg-sky-950/50',
-          text: 'text-sky-800 dark:text-sky-300',
-          border: 'border-sky-200 dark:border-sky-800',
-          indicatorBg: 'bg-sky-500',
         };
       case 'SAFE':
       default:
         return {
           icon: ShieldCheck,
-          label: 'AREA SAFE',
-          bg: 'bg-emerald-50 dark:bg-emerald-950/50',
+          label: 'GREEN: SAFE AREA',
+          bg: 'bg-emerald-50 dark:bg-emerald-950/60',
           text: 'text-emerald-800 dark:text-emerald-300',
-          border: 'border-emerald-200 dark:border-emerald-800',
+          border: 'border-emerald-300 dark:border-emerald-800',
           indicatorBg: 'bg-emerald-600',
         };
     }
@@ -57,9 +57,9 @@ export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, classNam
   const IconComponent = config.icon;
 
   const sizeClasses = {
-    sm: 'px-2 py-0.5 text-xs gap-1',
-    md: 'px-2.5 py-1 text-xs gap-1.5 font-medium',
-    lg: 'px-3 py-1.5 text-sm gap-2 font-semibold',
+    sm: 'px-2 py-0.5 text-xs gap-1 font-semibold',
+    md: 'px-2.5 py-1 text-xs gap-1.5 font-extrabold tracking-tight',
+    lg: 'px-3 py-1.5 text-sm gap-2 font-black tracking-tight',
   };
 
   const iconSizes = {
@@ -72,7 +72,7 @@ export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, classNam
     <span
       className={`inline-flex items-center rounded-md border ${config.bg} ${config.text} ${config.border} ${sizeClasses[size]} ${className}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${config.indicatorBg} animate-pulse`} />
+      <span className={`w-2 h-2 rounded-full ${config.indicatorBg} animate-pulse`} />
       <IconComponent size={iconSizes[size]} className="shrink-0" />
       <span>{config.label}</span>
     </span>

@@ -40,7 +40,7 @@ export default function EmergencyContactsPage() {
   const primaryContact = EMERGENCY_CONTACTS.find(c => c.primary) || EMERGENCY_CONTACTS[0];
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8 space-y-6">
+    <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-6">
       
       {/* Header */}
       <div className="space-y-1">

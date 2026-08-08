@@ -30,7 +30,7 @@ export default function SafeZonesPage() {
   });
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 space-y-6">
+    <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-6">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
