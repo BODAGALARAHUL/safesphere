@@ -11,9 +11,9 @@ export default function AlertsPage() {
 
   const filterTabs = [
     { id: 'ALL', label: 'All Alerts' },
-    { id: 'CRITICAL', label: 'Critical' },
-    { id: 'WARNING', label: 'Warning' },
-    { id: 'ADVISORY', label: 'Advisory' },
+    { id: 'CRITICAL', label: '🔴 Critical' },
+    { id: 'HIGH_RISK', label: '🟠 High Risk' },
+    { id: 'MODERATE', label: '🟡 Moderate (May Be)' },
   ];
 
   const filteredAlerts = MOCK_DISASTER_ALERTS.filter(alert => {

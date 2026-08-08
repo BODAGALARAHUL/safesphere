@@ -35,10 +35,11 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, isCompact = false }
     switch (alert.severity) {
       case 'CRITICAL':
         return 'border-l-4 border-l-red-600 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900';
-      case 'WARNING':
-        return 'border-l-4 border-l-amber-500 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900';
-      case 'ADVISORY':
-        return 'border-l-4 border-l-sky-500 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900';
+      case 'HIGH_RISK':
+        return 'border-l-4 border-l-orange-500 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900';
+      case 'MODERATE':
+        return 'border-l-4 border-l-amber-400 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900';
+      case 'SAFE':
       default:
         return 'border-l-4 border-l-emerald-600 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900';
     }

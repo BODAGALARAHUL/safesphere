@@ -1,15 +1,11 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import dynamic from 'next/dynamic';
 import { DisasterProvider } from '@/context/DisasterContext';
 import { AppHeader } from '@/components/AppHeader';
 import { MobileNavigation } from '@/components/MobileNavigation';
 import { OfflineBanner } from '@/components/OfflineBanner';
-
-const SOSModal = dynamic(() => import('@/components/SOSModal').then((mod) => mod.SOSModal), {
-  ssr: false,
-});
+import { ClientSOSModal } from '@/components/ClientSOSModal';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -42,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <OfflineBanner />
           <div className="flex-1 w-full">{children}</div>
           <MobileNavigation />
-          <SOSModal />
+          <ClientSOSModal />
         </DisasterProvider>
       </body>
     </html>
