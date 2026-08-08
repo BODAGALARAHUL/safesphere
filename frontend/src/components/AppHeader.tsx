@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useDisaster } from '@/context/DisasterContext';
-import { Shield, MapPin, Bell, AlertTriangle, ShieldCheck, ChevronDown, Check, WifiOff, HeartHandshake } from 'lucide-react';
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/data/translationsData';
+import { Shield, MapPin, Bell, AlertTriangle, ShieldCheck, ChevronDown, Check, WifiOff, HeartHandshake, Globe } from 'lucide-react';
 
 const LOCATIONS = [
   'Ahmedabad (Paldi / Vasna)',
@@ -23,9 +24,16 @@ export const AppHeader: React.FC = () => {
     setSelectedLocation, 
     setIsSOSOpen,
     setIsNotificationDrawerOpen,
-    setIsAssistanceModalOpen 
+    setIsAssistanceModalOpen,
+    currentLanguage,
+    setLanguage,
+    t
   } = useDisaster();
+
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+
+  const activeLangOption = SUPPORTED_LANGUAGES.find(l => l.code === currentLanguage) || SUPPORTED_LANGUAGES[0];
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm transition-colors">
@@ -38,7 +46,7 @@ export const AppHeader: React.FC = () => {
           </div>
           <div className="flex items-center">
             <span className="font-extrabold tracking-tight text-slate-900 dark:text-white text-base sm:text-lg leading-tight">
-              SafeSphere
+              {t('appTitle')}
             </span>
             <span className="hidden sm:inline-block ml-1 text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
               SIH1462
@@ -46,40 +54,93 @@ export const AppHeader: React.FC = () => {
           </div>
         </Link>
 
-        {/* Center: Location Selector */}
-        <div className="relative shrink min-w-0">
-          <button
-            type="button"
-            onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
-            className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 max-w-[110px] xs:max-w-[140px] sm:max-w-[200px]"
-            aria-label="Select location"
-          >
-            <MapPin className="h-3.5 w-3.5 text-slate-500 shrink-0" />
-            <span className="truncate text-[11px] sm:text-xs font-semibold">{selectedLocation}</span>
-            <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-          </button>
+        {/* Center: Location Selector & Language Picker */}
+        <div className="flex items-center gap-1.5 shrink min-w-0">
+          {/* Location Selector */}
+          <div className="relative shrink min-w-0">
+            <button
+              type="button"
+              onClick={() => {
+                setIsLocationDropdownOpen(!isLocationDropdownOpen);
+                setIsLangDropdownOpen(false);
+              }}
+              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 max-w-[100px] xs:max-w-[130px] sm:max-w-[190px]"
+              aria-label="Select location"
+            >
+              <MapPin className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+              <span className="truncate text-[11px] sm:text-xs font-semibold">{selectedLocation}</span>
+              <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+            </button>
 
-          {isLocationDropdownOpen && (
-            <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 mt-1.5 w-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-lg z-50">
-              <div className="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                Simulated Location
+            {isLocationDropdownOpen && (
+              <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 mt-1.5 w-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-lg z-50">
+                <div className="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  Simulated Location
+                </div>
+                {LOCATIONS.map(loc => (
+                  <button
+                    key={loc}
+                    type="button"
+                    onClick={() => {
+                      setSelectedLocation(loc);
+                      setIsLocationDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  >
+                    <span className="truncate">{loc}</span>
+                    {selectedLocation === loc && <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
+                  </button>
+                ))}
               </div>
-              {LOCATIONS.map(loc => (
-                <button
-                  key={loc}
-                  type="button"
-                  onClick={() => {
-                    setSelectedLocation(loc);
-                    setIsLocationDropdownOpen(false);
-                  }}
-                  className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                >
-                  <span className="truncate">{loc}</span>
-                  {selectedLocation === loc && <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
-                </button>
-              ))}
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Indian Language Switcher Dropdown */}
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setIsLangDropdownOpen(!isLangDropdownOpen);
+                setIsLocationDropdownOpen(false);
+              }}
+              className="flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
+              title="Change Indian Language"
+            >
+              <Globe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-[11px] font-extrabold">{activeLangOption.nativeName}</span>
+              <ChevronDown className="h-3 w-3 text-slate-400" />
+            </button>
+
+            {isLangDropdownOpen && (
+              <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 mt-1.5 w-48 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-xl z-50">
+                <div className="px-3 py-1.5 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                  Select Language / भाषा चुनें
+                </div>
+                {SUPPORTED_LANGUAGES.map(lang => (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => {
+                      setLanguage(lang.code);
+                      setIsLangDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-lg transition-colors ${
+                      currentLanguage === lang.code
+                        ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{lang.flag}</span>
+                      <span>{lang.nativeName}</span>
+                      <span className="text-[10px] opacity-60">({lang.name})</span>
+                    </span>
+                    {currentLanguage === lang.code && <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right: Controls & Actions */}
@@ -92,7 +153,7 @@ export const AppHeader: React.FC = () => {
             title="Request Special Assistance (Senior / Medical)"
           >
             <HeartHandshake className="h-3.5 w-3.5 text-red-600 shrink-0" />
-            <span className="hidden xl:inline ml-1">Special Assistance</span>
+            <span className="hidden xl:inline ml-1">{t('specialAssistance')}</span>
           </button>
 
           {/* Offline Mode Toggle Button */}
@@ -107,7 +168,7 @@ export const AppHeader: React.FC = () => {
             title="Toggle Offline Network Engine"
           >
             <WifiOff className="h-3.5 w-3.5 text-amber-500" />
-            <span className="hidden xl:inline ml-1">{isOffline ? 'Offline Active' : 'Offline Engine'}</span>
+            <span className="hidden xl:inline ml-1">{isOffline ? 'Offline Active' : t('offlineEngine')}</span>
           </button>
 
           {/* Threat Simulator Toggle Button for SIH Jury Demo */}
@@ -124,12 +185,12 @@ export const AppHeader: React.FC = () => {
             {isThreatMode ? (
               <>
                 <AlertTriangle className="h-3.5 w-3.5 text-red-600 animate-pulse" />
-                <span className="hidden md:inline ml-1">Demo: Threat Active</span>
+                <span className="hidden md:inline ml-1">{t('demoThreatActive')}</span>
               </>
             ) : (
               <>
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                <span className="hidden md:inline ml-1">Demo: Area Safe</span>
+                <span className="hidden md:inline ml-1">{t('demoAreaSafe')}</span>
               </>
             )}
           </button>

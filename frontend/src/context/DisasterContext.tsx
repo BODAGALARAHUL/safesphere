@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { MOCK_DISASTER_ALERTS, DisasterAlert } from '@/data/disastersData';
 import { PREPAREDNESS_ITEMS } from '@/data/preparednessData';
+import { SupportedLanguage, TRANSLATIONS } from '@/data/translationsData';
 
 export interface SpecialAssistanceRequest {
   id: string;
@@ -43,6 +44,10 @@ interface DisasterContextType {
   setIsAssistanceModalOpen: (open: boolean) => void;
   assistanceRequests: SpecialAssistanceRequest[];
   addAssistanceRequest: (req: Omit<SpecialAssistanceRequest, 'id' | 'status' | 'timestamp'>) => void;
+  // Multi-Language Support (i18n)
+  currentLanguage: SupportedLanguage;
+  setLanguage: (lang: SupportedLanguage) => void;
+  t: (key: string) => string;
 }
 
 const DisasterContext = createContext<DisasterContextType | undefined>(undefined);
@@ -55,6 +60,34 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [selectedSafeZoneFilter, setSelectedSafeZoneFilter] = useState<string>('All');
   const [isAudioSirenPlaying, setIsAudioSirenPlaying] = useState<boolean>(false);
   const [isOffline, setIsOffline] = useState<boolean>(false);
+
+  // Multi-language state with localStorage persistence
+  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('en');
+
+  useEffect(() => {
+    try {
+      const savedLang = localStorage.getItem('safesphere_lang') as SupportedLanguage;
+      if (savedLang && TRANSLATIONS[savedLang]) {
+        setCurrentLanguage(savedLang);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const setLanguage = (lang: SupportedLanguage) => {
+    setCurrentLanguage(lang);
+    try {
+      localStorage.setItem('safesphere_lang', lang);
+    } catch {
+      // ignore
+    }
+  };
+
+  const t = (key: string): string => {
+    const langDict = TRANSLATIONS[currentLanguage] || TRANSLATIONS['en'];
+    return langDict[key] || TRANSLATIONS['en'][key] || key;
+  };
 
   // Notification Drawer & Special Assistance Modal
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState<boolean>(false);
@@ -105,7 +138,6 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return next;
     });
 
-    // Open notification drawer automatically to show confirmation
     setIsNotificationDrawerOpen(true);
   };
 
@@ -196,6 +228,9 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsAssistanceModalOpen,
         assistanceRequests,
         addAssistanceRequest,
+        currentLanguage,
+        setLanguage,
+        t,
       }}
     >
       {children}

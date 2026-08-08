@@ -34,7 +34,8 @@ export default function HomePage() {
     activeAlert,
     prepPercentage,
     completedPrepCount,
-    totalPrepCount
+    totalPrepCount,
+    t
   } = useDisaster();
 
   const nearbyShelter = MOCK_SAFE_ZONES[0];
@@ -52,16 +53,16 @@ export default function HomePage() {
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/80 text-emerald-300 text-xs font-semibold border border-emerald-700">
                   <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>AREA MONITORING ACTIVE</span>
+                  <span>{t('areaMonitoring')}</span>
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-3 text-white">
                   <ShieldCheck className="h-8 w-8 text-emerald-400 shrink-0" />
-                  <span>YOU ARE CURRENTLY SAFE</span>
+                  <span>{t('areaSafe')}</span>
                 </h1>
 
                 <p className="text-sm text-emerald-200 max-w-xl leading-relaxed">
-                  No active severe disaster warnings reported in <span className="font-semibold text-white">{selectedLocation}</span>. All municipal safety systems operational.
+                  {t('noSevereWarnings')} <span className="font-semibold text-white">{selectedLocation}</span>. {t('allSystemsNormal')}
                 </p>
 
                 <div className="flex items-center gap-4 pt-1 text-xs text-emerald-300 font-medium">
@@ -81,7 +82,7 @@ export default function HomePage() {
                   href="/preparedness"
                   className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white text-emerald-950 hover:bg-emerald-50 text-sm font-black shadow transition-all active:scale-95"
                 >
-                  <span>Check Preparedness</span>
+                  <span>{t('checkPreparedness')}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -106,7 +107,7 @@ export default function HomePage() {
               {/* Alert Headline */}
               <div>
                 <div className="text-xs uppercase tracking-widest font-black text-red-400 mb-1">
-                  HIGH RISK DISASTER ALERT
+                  {t('highRiskAlert')}
                 </div>
                 <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
                   {activeAlert.title}
@@ -134,7 +135,7 @@ export default function HomePage() {
                   className="flex items-center justify-center gap-2 h-13 px-4 rounded-xl bg-white text-red-950 hover:bg-red-50 text-sm font-black shadow-lg transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-400"
                 >
                   <BookOpen className="h-5 w-5 text-red-600" />
-                  <span>WHAT SHOULD I DO?</span>
+                  <span>{t('whatShouldIDo')}</span>
                 </Link>
 
                 {/* CTA 2: Find Safe Location */}
@@ -143,7 +144,7 @@ export default function HomePage() {
                   className="flex items-center justify-center gap-2 h-13 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black shadow-lg transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-emerald-400"
                 >
                   <Navigation className="h-5 w-5" />
-                  <span>FIND SAFE LOCATION</span>
+                  <span>{t('findSafeLocation')}</span>
                 </Link>
 
                 {/* CTA 3: Call 112 */}
@@ -152,7 +153,7 @@ export default function HomePage() {
                   className="flex items-center justify-center gap-2 h-13 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-black shadow-lg border border-red-500 transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-400"
                 >
                   <Phone className="h-5 w-5" />
-                  <span>CALL 112 HELP</span>
+                  <span>{t('call112')}</span>
                 </a>
 
               </div>
@@ -180,8 +181,8 @@ export default function HomePage() {
               <div className="p-2.5 rounded-lg bg-red-600 text-white mb-3 shadow-sm group-hover:scale-105 transition-transform">
                 <AlertTriangle className="h-5 w-5" />
               </div>
-              <span className="font-extrabold text-sm sm:text-base leading-tight">Emergency SOS</span>
-              <span className="text-[11px] text-red-700 dark:text-red-300 mt-1">1-Tap 112 & Location</span>
+              <span className="font-extrabold text-sm sm:text-base leading-tight">{t('emergencySOS')}</span>
+              <span className="text-[11px] text-red-700 dark:text-red-300 mt-1">{t('oneTap112')}</span>
             </button>
 
             {/* Quick Action 2: Safe Zones */}
@@ -192,8 +193,8 @@ export default function HomePage() {
               <div className="p-2.5 rounded-lg bg-emerald-600 text-white mb-3 shadow-sm group-hover:scale-105 transition-transform">
                 <MapPin className="h-5 w-5" />
               </div>
-              <span className="font-extrabold text-sm sm:text-base leading-tight">Find Safety</span>
-              <span className="text-[11px] text-emerald-700 dark:text-emerald-300 mt-1">Shelters & Hospitals</span>
+              <span className="font-extrabold text-sm sm:text-base leading-tight">{t('findSafety')}</span>
+              <span className="text-[11px] text-emerald-700 dark:text-emerald-300 mt-1">{t('sheltersAndHospitals')}</span>
             </Link>
 
             {/* Quick Action 3: Active Alerts */}
@@ -204,8 +205,8 @@ export default function HomePage() {
               <div className="p-2.5 rounded-lg bg-sky-600 text-white mb-3 shadow-sm group-hover:scale-105 transition-transform">
                 <Shield className="h-5 w-5" />
               </div>
-              <span className="font-extrabold text-sm sm:text-base leading-tight">Disaster Alerts</span>
-              <span className="text-[11px] text-sky-700 dark:text-sky-300 mt-1">Regional Warning Feed</span>
+              <span className="font-extrabold text-sm sm:text-base leading-tight">{t('disasterAlerts')}</span>
+              <span className="text-[11px] text-sky-700 dark:text-sky-300 mt-1">{t('regionalFeed')}</span>
             </Link>
 
             {/* Quick Action 4: Disaster Guidance */}
@@ -216,8 +217,8 @@ export default function HomePage() {
               <div className="p-2.5 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 mb-3 shadow-sm group-hover:scale-105 transition-transform">
                 <BookOpen className="h-5 w-5" />
               </div>
-              <span className="font-extrabold text-sm sm:text-base leading-tight">Action Library</span>
-              <span className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Flood, Cyclone & Fire</span>
+              <span className="font-extrabold text-sm sm:text-base leading-tight">{t('actionLibrary')}</span>
+              <span className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{t('floodCycloneFire')}</span>
             </Link>
 
           </div>

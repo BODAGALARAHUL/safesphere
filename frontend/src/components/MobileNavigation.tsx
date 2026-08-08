@@ -8,15 +8,15 @@ import { Home, Bell, MapPin, BookOpen, Phone, User, ShieldAlert } from 'lucide-r
 
 export const MobileNavigation: React.FC = () => {
   const pathname = usePathname();
-  const { setIsSOSOpen } = useDisaster();
+  const { setIsSOSOpen, t } = useDisaster();
 
   const navItems = [
-    { href: '/', label: 'Home', icon: Home },
-    { href: '/alerts', label: 'Alerts', icon: Bell },
-    { href: '/risk-levels', label: 'Risk Matrix', icon: ShieldAlert },
-    { href: '/safe-zones', label: 'Safe Zones', icon: MapPin },
-    { href: '/disasters', label: 'Guidance', icon: BookOpen },
-    { href: '/emergency', label: 'Emergency', icon: Phone },
+    { href: '/', label: t('navHome'), icon: Home },
+    { href: '/alerts', label: t('navAlerts'), icon: Bell },
+    { href: '/risk-levels', label: t('navRiskMatrix'), icon: ShieldAlert },
+    { href: '/safe-zones', label: t('navSafeZones'), icon: MapPin },
+    { href: '/disasters', label: t('navGuidance'), icon: BookOpen },
+    { href: '/emergency', label: t('navEmergency'), icon: Phone },
   ];
 
   return (
@@ -55,7 +55,7 @@ export const MobileNavigation: React.FC = () => {
                   : 'border-slate-700 text-slate-300 hover:bg-slate-800'
               }`}
             >
-              Preparedness Checklist
+              {t('navChecklist')}
             </Link>
             <Link
               href="/profile"
@@ -77,27 +77,27 @@ export const MobileNavigation: React.FC = () => {
           {/* Home */}
           <Link
             href="/"
-            className={`flex flex-col items-center justify-center py-1 px-2 min-w-[56px] min-h-[44px] rounded-lg transition-colors ${
+            className={`flex flex-col items-center justify-center py-1 px-1.5 min-w-[52px] min-h-[44px] rounded-lg transition-colors ${
               pathname === '/'
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
             <Home className="h-5 w-5" />
-            <span className="text-[10px] mt-0.5">Home</span>
+            <span className="text-[10px] mt-0.5">{t('navHome')}</span>
           </Link>
 
           {/* Alerts */}
           <Link
             href="/alerts"
-            className={`flex flex-col items-center justify-center py-1 px-2 min-w-[56px] min-h-[44px] rounded-lg transition-colors ${
+            className={`flex flex-col items-center justify-center py-1 px-1.5 min-w-[52px] min-h-[44px] rounded-lg transition-colors ${
               pathname.startsWith('/alerts')
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
             <Bell className="h-5 w-5" />
-            <span className="text-[10px] mt-0.5">Alerts</span>
+            <span className="text-[10px] mt-0.5">{t('navAlerts')}</span>
           </Link>
 
           {/* Central Elevated SOS Button */}
@@ -118,27 +118,27 @@ export const MobileNavigation: React.FC = () => {
           {/* Safe Zones */}
           <Link
             href="/safe-zones"
-            className={`flex flex-col items-center justify-center py-1 px-2 min-w-[56px] min-h-[44px] rounded-lg transition-colors ${
+            className={`flex flex-col items-center justify-center py-1 px-1.5 min-w-[52px] min-h-[44px] rounded-lg transition-colors ${
               pathname.startsWith('/safe-zones')
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
             <MapPin className="h-5 w-5" />
-            <span className="text-[10px] mt-0.5">Safe Zones</span>
+            <span className="text-[10px] mt-0.5">{t('navSafeZones')}</span>
           </Link>
 
           {/* Guidance */}
           <Link
             href="/disasters"
-            className={`flex flex-col items-center justify-center py-1 px-2 min-w-[56px] min-h-[44px] rounded-lg transition-colors ${
+            className={`flex flex-col items-center justify-center py-1 px-1.5 min-w-[52px] min-h-[44px] rounded-lg transition-colors ${
               pathname.startsWith('/disasters')
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
             <BookOpen className="h-5 w-5" />
-            <span className="text-[10px] mt-0.5">Guidance</span>
+            <span className="text-[10px] mt-0.5">{t('navGuidance')}</span>
           </Link>
 
         </div>
