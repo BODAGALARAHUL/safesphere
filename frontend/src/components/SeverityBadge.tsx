@@ -1,57 +1,56 @@
-'use client';
-
 import React from 'react';
 import { SeverityLevel } from '@/data/disastersData';
-import { useDisaster } from '@/context/DisasterContext';
-import { AlertTriangle, AlertCircle, ShieldCheck, AlertOctagon } from 'lucide-react';
+import { AlertTriangle, AlertOctagon, Info, ShieldCheck } from 'lucide-react';
 
 interface SeverityBadgeProps {
   severity: SeverityLevel;
-  className?: string;
   size?: 'sm' | 'md' | 'lg';
+  showIcon?: boolean;
 }
 
-export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, className = '', size = 'md' }) => {
-  const { t } = useDisaster();
-
+export const SeverityBadge: React.FC<SeverityBadgeProps> = ({
+  severity,
+  size = 'md',
+  showIcon = true,
+}) => {
   const getBadgeConfig = () => {
     switch (severity) {
       case 'CRITICAL':
         return {
-          icon: AlertTriangle,
-          label: t('severityCritical'),
-          bg: 'bg-red-50 dark:bg-red-950/60',
-          text: 'text-red-700 dark:text-red-300',
-          border: 'border-red-300 dark:border-red-800',
-          indicatorBg: 'bg-red-600',
+          label: 'CRITICAL',
+          bgColor: 'bg-[rgba(255,48,79,0.12)]',
+          textColor: 'text-[#ff304f]',
+          borderColor: 'border-[rgba(255,48,79,0.35)]',
+          dotColor: 'bg-[#ff304f]',
+          icon: AlertOctagon,
         };
       case 'HIGH_RISK':
         return {
-          icon: AlertOctagon,
-          label: t('severityHigh'),
-          bg: 'bg-orange-50 dark:bg-orange-950/60',
-          text: 'text-orange-800 dark:text-orange-300',
-          border: 'border-orange-300 dark:border-orange-800',
-          indicatorBg: 'bg-orange-500',
+          label: 'HIGH RISK',
+          bgColor: 'bg-[rgba(255,138,31,0.12)]',
+          textColor: 'text-[#ff8a1f]',
+          borderColor: 'border-[rgba(255,138,31,0.35)]',
+          dotColor: 'bg-[#ff8a1f]',
+          icon: AlertTriangle,
         };
       case 'MODERATE':
         return {
-          icon: AlertCircle,
-          label: t('severityModerate'),
-          bg: 'bg-amber-50 dark:bg-amber-950/60',
-          text: 'text-amber-800 dark:text-amber-300',
-          border: 'border-amber-300 dark:border-amber-800',
-          indicatorBg: 'bg-amber-500',
+          label: 'MODERATE',
+          bgColor: 'bg-[rgba(245,197,66,0.12)]',
+          textColor: 'text-[#f5c542]',
+          borderColor: 'border-[rgba(245,197,66,0.35)]',
+          dotColor: 'bg-[#f5c542]',
+          icon: Info,
         };
       case 'SAFE':
       default:
         return {
+          label: 'SAFE / MONITORING',
+          bgColor: 'bg-[rgba(22,199,132,0.12)]',
+          textColor: 'text-[#16c784]',
+          borderColor: 'border-[rgba(22,199,132,0.35)]',
+          dotColor: 'bg-[#16c784]',
           icon: ShieldCheck,
-          label: t('severitySafe'),
-          bg: 'bg-emerald-50 dark:bg-emerald-950/60',
-          text: 'text-emerald-800 dark:text-emerald-300',
-          border: 'border-emerald-300 dark:border-emerald-800',
-          indicatorBg: 'bg-emerald-600',
         };
     }
   };
@@ -60,23 +59,23 @@ export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, classNam
   const IconComponent = config.icon;
 
   const sizeClasses = {
-    sm: 'px-2 py-0.5 text-xs gap-1 font-semibold',
-    md: 'px-2.5 py-1 text-xs gap-1.5 font-extrabold tracking-tight',
-    lg: 'px-3 py-1.5 text-sm gap-2 font-black tracking-tight',
-  };
+    sm: 'px-2 py-0.5 text-[10px] gap-1 font-bold',
+    md: 'px-2.5 py-1 text-xs gap-1.5 font-bold',
+    lg: 'px-3.5 py-1.5 text-xs sm:text-sm gap-2 font-black',
+  }[size];
 
   const iconSizes = {
-    sm: 12,
-    md: 14,
-    lg: 16,
-  };
+    sm: 'h-3 w-3',
+    md: 'h-3.5 w-3.5',
+    lg: 'h-4 w-4',
+  }[size];
 
   return (
     <span
-      className={`inline-flex items-center rounded-md border ${config.bg} ${config.text} ${config.border} ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center rounded-md border ${config.bgColor} ${config.textColor} ${config.borderColor} ${sizeClasses} tracking-wider uppercase select-none`}
     >
-      <span className={`w-2 h-2 rounded-full ${config.indicatorBg} animate-pulse`} />
-      <IconComponent size={iconSizes[size]} className="shrink-0" />
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dotColor} shrink-0 animate-pulse`} />
+      {showIcon && <IconComponent className={`${iconSizes} shrink-0`} />}
       <span>{config.label}</span>
     </span>
   );

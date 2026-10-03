@@ -1,226 +1,221 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDisaster } from '@/context/DisasterContext';
-import { User, MapPin, Bell, Eye, ShieldCheck, Check } from 'lucide-react';
+import { animatePageEnter, createStaggerReveal } from '@/lib/animations';
+import { User, MapPin, Bell, Check, ShieldAlert, Smartphone, Volume2 } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { selectedLocation, setSelectedLocation, t } = useDisaster();
+  const { selectedLocation, setSelectedLocation, isThreatMode, toggleThreatMode, isOffline, toggleOfflineMode } = useDisaster();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const sectionsListRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      animatePageEnter(containerRef.current);
+    }
+    if (sectionsListRef.current) {
+      createStaggerReveal(sectionsListRef.current, '.profile-section-card', { stagger: 0.1 });
+    }
+  }, []);
 
   const [smsAlerts, setSmsAlerts] = useState<boolean>(true);
   const [highPrioritySound, setHighPrioritySound] = useState<boolean>(true);
-  const [highContrast, setHighContrast] = useState<boolean>(false);
-  const [largeText, setLargeText] = useState<boolean>(false);
 
   const locations = [
-    'Ahmedabad (Paldi / Vasna)',
-    'Ahmedabad (Satellite / SG Highway)',
-    'Mumbai Coast (Colaba / Worli)',
-    'Surat (Hazira Coastal Belt)',
-    'Delhi NCR (Yamuna Floodplain)',
+    'Ahmedabad · Paldi',
+    'Ahmedabad · Vasna',
+    'Ahmedabad · Satellite',
+    'Ahmedabad · Ellisbridge',
   ];
 
   return (
-    <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-6">
+    <main ref={containerRef} className="atmosphere-profile w-full min-h-screen py-6 sm:py-8">
+      <div className="page-shell space-y-6 sm:space-y-8">
       
-      {/* Header */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-          <User className="h-4 w-4 text-slate-700 dark:text-slate-300" />
-          <span>APP PREFERENCES & REGION</span>
+      
+      <div className="space-y-1.5 max-w-4xl">
+        <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#38a8ff] uppercase tracking-wider">
+          <User className="h-4 w-4 text-[#38a8ff]" />
+          <span>Safety Profile & EOC Parameters</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          {t('profileTitle')}
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+          Citizen Configuration & Telemetry
         </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          {t('profileSubtitle')}
+        <p className="text-xs sm:text-sm text-[#94a3b8]">
+          Configure your local monitored sector, priority alert sound channels, and test the offline data engine.
         </p>
       </div>
 
-      {/* Location Region Card */}
-      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white">
-            <MapPin className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="font-bold text-base text-slate-900 dark:text-white">
-              {t('settingsLocation')}
-            </h2>
-            <div className="text-xs text-slate-500">
-              Disaster warnings and nearest safe zones will default to this area.
+      <div ref={sectionsListRef} className="space-y-6 sm:space-y-8">
+        
+        
+        <section className="profile-section-card rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d121a] p-6 sm:p-7 shadow-sm space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-[#151c26] border border-[rgba(255,255,255,0.08)] text-white">
+              <MapPin className="h-5 w-5 text-[#16c784]" />
             </div>
-          </div>
-        </div>
-
-        <div className="space-y-2 pt-1">
-          {locations.map(loc => (
-            <button
-              key={loc}
-              type="button"
-              onClick={() => setSelectedLocation(loc)}
-              className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-xs sm:text-sm font-bold text-left transition-all ${
-                selectedLocation === loc
-                  ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/40 text-slate-900 dark:text-white'
-                  : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
-              }`}
-            >
-              <span>{loc}</span>
-              {selectedLocation === loc && (
-                <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              )}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Notification Preferences */}
-      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white">
-            <Bell className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="font-bold text-base text-slate-900 dark:text-white">
-              {t('settingsNotifications')}
-            </h2>
-            <div className="text-xs text-slate-500">
-              High-priority broadcast channels for critical evacuation alerts.
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {/* SMS Toggle */}
-          <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
             <div>
-              <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                SMS Disaster Broadcasts
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Receive offline SMS alerts when mobile data is unavailable.
+              <h2 className="font-bold text-base text-white">
+                Assigned Monitored Sector
+              </h2>
+              <div className="text-xs text-[#94a3b8]">
+                Real-time hazard alerts and nearest safe havens will default to this geographic zone.
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setSmsAlerts(!smsAlerts)}
-              className={`w-12 h-6 rounded-full transition-colors relative p-0.5 ${
-                smsAlerts ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
-              }`}
-            >
-              <div
-                className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                  smsAlerts ? 'translate-x-6' : 'translate-x-0'
-                }`}
-              />
-            </button>
           </div>
 
-          {/* Sound Alarm Toggle */}
-          <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            {locations.map(loc => (
+              <button
+                key={loc}
+                type="button"
+                onClick={() => setSelectedLocation(loc)}
+                className={`w-full flex items-center justify-between p-4 rounded-xl border text-xs sm:text-sm font-bold text-left transition-all cursor-pointer ${
+                  selectedLocation === loc
+                    ? 'border-[rgba(22,199,132,0.4)] bg-[#151c26] text-white ring-1 ring-[#16c784]'
+                    : 'border-[rgba(255,255,255,0.06)] bg-[#0d121a] text-[#94a3b8] hover:text-white hover:bg-[#151c26]'
+                }`}
+              >
+                <span>{loc}</span>
+                {selectedLocation === loc && (
+                  <Check className="h-4 w-4 text-[#16c784] shrink-0" />
+                )}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        
+        <section className="profile-section-card rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d121a] p-6 sm:p-7 shadow-sm space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-[#151c26] border border-[rgba(255,255,255,0.08)] text-white">
+              <Bell className="h-5 w-5 text-[#38a8ff]" />
+            </div>
             <div>
-              <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                High-Priority Emergency Alarm Sound
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Override silent mode for CRITICAL flood and cyclone warnings.
+              <h2 className="font-bold text-base text-white">
+                High-Priority Broadcast Channels
+              </h2>
+              <div className="text-xs text-[#94a3b8]">
+                Critical alerting pathways for imminent evacuation orders.
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setHighPrioritySound(!highPrioritySound)}
-              className={`w-12 h-6 rounded-full transition-colors relative p-0.5 ${
-                highPrioritySound ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
-              }`}
-            >
-              <div
-                className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                  highPrioritySound ? 'translate-x-6' : 'translate-x-0'
+          </div>
+
+          <div className="space-y-3">
+            
+            <div className="flex items-center justify-between p-4 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#151c26]">
+              <div className="space-y-0.5">
+                <div className="font-bold text-xs sm:text-sm text-white flex items-center gap-2">
+                  <Smartphone className="h-4 w-4 text-[#38a8ff]" />
+                  <span>Emergency SMS Broadcasts</span>
+                </div>
+                <div className="text-[11px] text-[#64748b]">
+                  Automated SMS dispatch when data towers encounter severe storm degradation.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSmsAlerts(!smsAlerts)}
+                className={`h-6 w-11 rounded-full transition-colors relative cursor-pointer ${
+                  smsAlerts ? 'bg-[#16c784]' : 'bg-[#0d121a]'
                 }`}
-              />
-            </button>
-          </div>
-        </div>
-      </section>
+              >
+                <span
+                  className={`block h-4 w-4 rounded-full bg-white transition-transform ${
+                    smsAlerts ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
 
-      {/* Accessibility Options */}
-      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white">
-            <Eye className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="font-bold text-base text-slate-900 dark:text-white">
-              Accessibility Controls
-            </h2>
-            <div className="text-xs text-slate-500">
-              Enhanced contrast and legibility for outdoor sunlight visibility.
+            
+            <div className="flex items-center justify-between p-4 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#151c26]">
+              <div className="space-y-0.5">
+                <div className="font-bold text-xs sm:text-sm text-white flex items-center gap-2">
+                  <Volume2 className="h-4 w-4 text-[#ff8a1f]" />
+                  <span>Critical Evacuation Audio Alarm</span>
+                </div>
+                <div className="text-[11px] text-[#64748b]">
+                  Override device silent mode during Code Red flood & cyclone warnings.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setHighPrioritySound(!highPrioritySound)}
+                className={`h-6 w-11 rounded-full transition-colors relative cursor-pointer ${
+                  highPrioritySound ? 'bg-[#16c784]' : 'bg-[#0d121a]'
+                }`}
+              >
+                <span
+                  className={`block h-4 w-4 rounded-full bg-white transition-transform ${
+                    highPrioritySound ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
+        
+        <section className="profile-section-card rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d121a] p-6 sm:p-7 shadow-sm space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-[#151c26] border border-[rgba(255,255,255,0.08)] text-white">
+              <ShieldAlert className="h-5 w-5 text-[#ff304f]" />
+            </div>
             <div>
-              <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                High-Contrast Display Mode
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Maximizes contrast for direct outdoor sunlight viewing.
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setHighContrast(!highContrast)}
-              className={`w-12 h-6 rounded-full transition-colors relative p-0.5 ${
-                highContrast ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
-              }`}
-            >
-              <div
-                className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                  highContrast ? 'translate-x-6' : 'translate-x-0'
-                }`}
-              />
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
-            <div>
-              <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                Large Emergency Typography
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Increases text font sizes across alert cards and emergency guides.
+              <h2 className="font-bold text-base text-white">
+                EOC Scenario Simulation Deck
+              </h2>
+              <div className="text-xs text-[#94a3b8]">
+                Toggle simulated emergency conditions for demonstration and drill verification.
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setLargeText(!largeText)}
-              className={`w-12 h-6 rounded-full transition-colors relative p-0.5 ${
-                largeText ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
-              }`}
-            >
-              <div
-                className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                  largeText ? 'translate-x-6' : 'translate-x-0'
-                }`}
-              />
-            </button>
           </div>
-        </div>
-      </section>
 
-      {/* SIH Prototype Meta Card */}
-      <div className="rounded-2xl bg-slate-900 text-white p-6 shadow-sm flex items-center gap-4">
-        <ShieldCheck className="h-8 w-8 text-emerald-400 shrink-0" />
-        <div className="text-xs space-y-1">
-          <div className="font-extrabold text-sm text-white">SafeSphere (SIH1462) Prototype</div>
-          <div className="text-slate-300">
-            Designed and built for Smart India Hackathon. Operates on local mock telemetry for high reliability during network outages.
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            
+            <div className="p-4 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#151c26] flex items-center justify-between">
+              <div>
+                <span className="font-bold text-xs text-white block">Flood Threat Active</span>
+                <span className="text-[11px] text-[#64748b]">Simulate Sabarmati crest</span>
+              </div>
+              <button
+                type="button"
+                onClick={toggleThreatMode}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  isThreatMode
+                    ? 'bg-[#ff304f] text-white shadow-sm'
+                    : 'bg-[#0d121a] text-[#94a3b8] border border-[rgba(255,255,255,0.08)]'
+                }`}
+              >
+                {isThreatMode ? 'Simulating Code Red' : 'Normal State'}
+              </button>
+            </div>
+
+            
+            <div className="p-4 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#151c26] flex items-center justify-between">
+              <div>
+                <span className="font-bold text-xs text-white block">Low-Bandwidth Engine</span>
+                <span className="text-[11px] text-[#64748b]">Simulate data loss</span>
+              </div>
+              <button
+                type="button"
+                onClick={toggleOfflineMode}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  isOffline
+                    ? 'bg-[#f5c542] text-[#06080d] font-black shadow-sm'
+                    : 'bg-[#0d121a] text-[#94a3b8] border border-[rgba(255,255,255,0.08)]'
+                }`}
+              >
+                {isOffline ? 'Offline Active' : 'Online'}
+              </button>
+            </div>
           </div>
-        </div>
+        </section>
+
       </div>
-
+      </div>
     </main>
   );
 }

@@ -1,50 +1,64 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { DISASTER_GUIDES, getLocalizedGuidance } from '@/data/guidanceData';
 import { useDisaster } from '@/context/DisasterContext';
+import { animatePageEnter, createStaggerReveal } from '@/lib/animations';
 import {
   ArrowLeft,
-  Check,
-  AlertOctagon,
   Navigation,
   Phone,
   Waves,
   Wind,
   Activity,
   Flame,
-  BookOpen
+  BookOpen,
+  Sun
 } from 'lucide-react';
+
+function renderGuideIcon(disasterType: string) {
+  switch (disasterType) {
+    case 'Flood':
+      return <Waves className="h-6 w-6 text-white" />;
+    case 'Cyclone':
+      return <Wind className="h-6 w-6 text-white" />;
+    case 'Earthquake':
+      return <Activity className="h-6 w-6 text-white" />;
+    case 'Fire':
+      return <Flame className="h-6 w-6 text-white" />;
+    case 'Heatwave':
+      return <Sun className="h-6 w-6 text-white" />;
+    default:
+      return <BookOpen className="h-6 w-6 text-white" />;
+  }
+}
 
 export default function DisasterGuideDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { currentLanguage, t } = useDisaster();
+  const { currentLanguage } = useDisaster();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const stepsContainerRef = useRef<HTMLDivElement>(null);
   const guideId = params?.id as string;
-
-  const rawGuide = DISASTER_GUIDES.find(g => g.id === guideId) || DISASTER_GUIDES[0];
-  const guide = getLocalizedGuidance(rawGuide, currentLanguage);
 
   const [activeTab, setActiveTab] = useState<'BEFORE' | 'DURING' | 'AFTER'>('DURING');
 
-  const getDisasterIcon = (disasterType: string) => {
-    switch (disasterType) {
-      case 'Flood':
-        return Waves;
-      case 'Cyclone':
-        return Wind;
-      case 'Earthquake':
-        return Activity;
-      case 'Fire':
-        return Flame;
-      default:
-        return BookOpen;
+  useEffect(() => {
+    if (containerRef.current) {
+      animatePageEnter(containerRef.current);
     }
-  };
+  }, [guideId]);
 
-  const IconComponent = getDisasterIcon(guide.disasterType);
+  useEffect(() => {
+    if (stepsContainerRef.current) {
+      createStaggerReveal(stepsContainerRef.current, '.action-step-card', { stagger: 0.08 });
+    }
+  }, [activeTab]);
+
+  const rawGuide = DISASTER_GUIDES.find(g => g.id === guideId) || DISASTER_GUIDES[0];
+  const guide = getLocalizedGuidance(rawGuide, currentLanguage);
 
   const getActiveSteps = () => {
     switch (activeTab) {
@@ -60,130 +74,115 @@ export default function DisasterGuideDetailPage() {
   };
 
   return (
-    <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-6">
+    <main ref={containerRef} className="atmosphere-guides w-full min-h-screen py-6 sm:py-8">
+      <div className="page-shell space-y-6">
       
-      {/* Back Link */}
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Guidance Library</span>
-      </button>
+      
+      <div>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-xs font-bold text-[#94a3b8] hover:text-white transition-colors cursor-pointer group"
+        >
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+          <span>Return to Survival Handbook</span>
+        </button>
+      </div>
 
-      {/* Guide Header */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex items-start gap-4">
-        <div className="p-3.5 rounded-2xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shrink-0">
-          <IconComponent className="h-7 w-7" />
-        </div>
-        <div>
-          <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+      
+      <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d121a] p-6 sm:p-8 shadow-xl space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-[#151c26] border border-[rgba(255,255,255,0.08)] text-white shadow-sm">
+              {renderGuideIcon(guide.disasterType)}
+            </div>
+            <div>
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#38a8ff] block">
+                Standard Operating Procedure
+              </span>
+              <span className="text-xs text-[#64748b]">Approved by NDMA & State Disaster Management</span>
+            </div>
+          </div>
+          <span className="px-3 py-1 rounded-md text-xs font-mono font-bold bg-[#151c26] border border-[rgba(255,255,255,0.1)] text-[#94a3b8]">
             {guide.severityRisk}
           </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-tight">
-            {guide.title}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-            {guide.summary}
-          </p>
         </div>
+
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+          {guide.disasterType} · 3-Minute Operational Action Plan
+        </h1>
+        <p className="text-xs sm:text-sm text-[#94a3b8] max-w-2xl leading-relaxed">
+          {guide.summary}
+        </p>
       </div>
 
-      {/* Segmented Navigation Tabs: BEFORE | DURING | AFTER */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 shadow-sm">
-        <div className="grid grid-cols-3 gap-1">
-          {(['BEFORE', 'DURING', 'AFTER'] as const).map(tab => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
-                activeTab === tab
-                  ? tab === 'DURING'
-                    ? 'bg-red-600 text-white shadow-md'
-                    : 'bg-slate-900 text-white shadow-md dark:bg-slate-100 dark:text-slate-900'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
-            >
-              {tab === 'BEFORE' && t('guidancePhaseBefore')}
-              {tab === 'DURING' && t('guidancePhaseDuring')}
-              {tab === 'AFTER' && t('guidancePhaseAfter')}
-            </button>
-          ))}
-        </div>
+      
+      <div className="sticky top-16 z-20 grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-[#0d121a]/95 backdrop-blur-md border border-[rgba(255,255,255,0.08)] shadow-lg">
+        {[
+          { id: 'BEFORE', num: '01', label: 'Before Event' },
+          { id: 'DURING', num: '02', label: 'During Event' },
+          { id: 'AFTER', num: '03', label: 'After Event' },
+        ].map(tab => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id as 'BEFORE' | 'DURING' | 'AFTER')}
+            className={`py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 cursor-pointer ${
+              activeTab === tab.id
+                ? 'bg-[#151c26] text-white border border-[rgba(56,168,255,0.4)] shadow-md'
+                : 'text-[#94a3b8] hover:text-white hover:bg-[#151c26]/50'
+            }`}
+          >
+            <span className="font-mono text-xs opacity-60">{tab.num}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
       </div>
 
-      {/* Action Steps Section */}
-      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-          <h2 className="text-xs font-black uppercase tracking-wider text-slate-400">
-            {t('recommendedActions')}
-          </h2>
-          <span className="text-xs font-semibold text-emerald-600">
-            Verified NDMA Guideline
-          </span>
-        </div>
-
-        <div className="space-y-3">
-          {getActiveSteps().map((step, idx) => (
-            <div
-              key={idx}
-              className={`p-3.5 rounded-xl border flex items-start gap-3 transition-colors ${
-                step.urgent
-                  ? 'border-red-200 bg-red-50/60 dark:bg-red-950/30 text-red-950 dark:text-red-100'
-                  : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-slate-900 dark:text-white'
-              }`}
-            >
-              <div
-                className={`p-1 rounded-full shrink-0 mt-0.5 ${
-                  step.urgent ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'
-                }`}
-              >
-                <Check className="h-3.5 w-3.5" />
-              </div>
-              <span className="text-sm font-bold leading-relaxed">{step.text}</span>
+      
+      <div ref={stepsContainerRef} className="space-y-3.5">
+        {getActiveSteps().map((step, idx) => (
+          <div
+            key={idx}
+            className="action-step-card flex items-start gap-4 p-5 rounded-2xl bg-[#0d121a] border border-[rgba(255,255,255,0.06)] hover:bg-[#151c26] transition-all shadow-sm"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#151c26] border border-[rgba(255,255,255,0.1)] text-xs font-mono font-black text-[#38a8ff] shrink-0">
+              {String(idx + 1).padStart(2, '0')}
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="space-y-1 pt-0.5">
+              <p className="text-sm font-semibold text-[#f5f7fa] leading-relaxed">
+                {step.text}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
 
-      {/* AVOID BLOCK */}
-      <section className="rounded-2xl border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/30 p-6 shadow-sm space-y-3">
-        <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-black">
-          <AlertOctagon className="h-5 w-5 text-amber-600 shrink-0" />
-          <h2 className="text-xs uppercase tracking-wider">{t('thingsToAvoid')}</h2>
-        </div>
-
-        <ul className="space-y-2">
-          {guide.avoidItems.map((avoid, i) => (
-            <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-amber-900 dark:text-amber-200 font-bold">
-              <span className="text-amber-600">✕</span>
-              <span>{avoid}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* Direct Action Buttons */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
         <Link
           href="/safe-zones"
-          className="flex items-center justify-center gap-2 h-13 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-md transition-colors"
+          className="group flex items-center justify-between p-4 rounded-xl bg-[#151c26] hover:bg-[#1b2430] border border-[rgba(56,168,255,0.3)] text-white font-bold text-xs transition-all shadow-sm hover:scale-[1.02]"
         >
-          <Navigation className="h-5 w-5" />
-          <span>{t('findSafeLocation')}</span>
+          <div className="flex items-center gap-2.5">
+            <Navigation className="h-5 w-5 text-[#38a8ff]" />
+            <span>Find Verified Safe Havens</span>
+          </div>
+          <ArrowLeft className="h-4 w-4 rotate-180 text-[#38a8ff] transition-transform group-hover:translate-x-1" />
         </Link>
 
         <a
           href="tel:112"
-          className="flex items-center justify-center gap-2 h-13 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-md transition-colors"
+          className="flex items-center justify-between p-4 rounded-xl bg-[#ff304f] hover:bg-[#e02441] text-white font-black text-xs transition-all shadow-md hover:scale-[1.02] active:scale-95"
         >
-          <Phone className="h-5 w-5" />
-          <span>{t('call112')}</span>
+          <div className="flex items-center gap-2.5">
+            <Phone className="h-5 w-5" />
+            <span>Call 112 National Emergency</span>
+          </div>
+          <span className="font-mono uppercase text-[11px] px-2 py-0.5 rounded bg-black/20">Dial</span>
         </a>
-      </section>
-
+      </div>
+      </div>
     </main>
   );
 }

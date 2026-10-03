@@ -37,14 +37,14 @@ interface DisasterContextType {
   setSelectedSafeZoneFilter: (filter: string) => void;
   isAudioSirenPlaying: boolean;
   toggleAudioSiren: () => void;
-  // Notification Drawer & Special Assistance Requests
+  
   isNotificationDrawerOpen: boolean;
   setIsNotificationDrawerOpen: (open: boolean) => void;
   isAssistanceModalOpen: boolean;
   setIsAssistanceModalOpen: (open: boolean) => void;
   assistanceRequests: SpecialAssistanceRequest[];
   addAssistanceRequest: (req: Omit<SpecialAssistanceRequest, 'id' | 'status' | 'timestamp'>) => void;
-  // Multi-Language Support (i18n)
+  
   currentLanguage: SupportedLanguage;
   setLanguage: (lang: SupportedLanguage) => void;
   t: (key: string) => string;
@@ -54,33 +54,22 @@ const DisasterContext = createContext<DisasterContextType | undefined>(undefined
 
 export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isThreatMode, setIsThreatMode] = useState<boolean>(true);
-  const [selectedLocation, setSelectedLocation] = useState<string>('Ahmedabad (Paldi / Vasna)');
+  const [selectedLocation, setSelectedLocation] = useState<string>('Ahmedabad · Paldi');
   const [isSOSOpen, setIsSOSOpen] = useState<boolean>(false);
   const [activeAlert] = useState<DisasterAlert>(MOCK_DISASTER_ALERTS[0]);
   const [selectedSafeZoneFilter, setSelectedSafeZoneFilter] = useState<string>('All');
   const [isAudioSirenPlaying, setIsAudioSirenPlaying] = useState<boolean>(false);
   const [isOffline, setIsOffline] = useState<boolean>(false);
 
-  // Multi-language state with localStorage persistence
+  
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('en');
-
-  useEffect(() => {
-    try {
-      const savedLang = localStorage.getItem('safesphere_lang') as SupportedLanguage;
-      if (savedLang && TRANSLATIONS[savedLang]) {
-        setCurrentLanguage(savedLang);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
 
   const setLanguage = (lang: SupportedLanguage) => {
     setCurrentLanguage(lang);
     try {
       localStorage.setItem('safesphere_lang', lang);
     } catch {
-      // ignore
+      
     }
   };
 
@@ -89,12 +78,12 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return langDict[key] || TRANSLATIONS['en'][key] || key;
   };
 
-  // Notification Drawer & Special Assistance Modal
+  
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState<boolean>(false);
   const [isAssistanceModalOpen, setIsAssistanceModalOpen] = useState<boolean>(false);
 
-  // Initial mock assistance requests
-  const [assistanceRequests, setAssistanceRequests] = useState<SpecialAssistanceRequest[]>(() => [
+  
+  const [assistanceRequests, setAssistanceRequests] = useState<SpecialAssistanceRequest[]>([
     {
       id: 'req-01',
       type: 'Elderly / Senior Care',
@@ -107,18 +96,6 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       timestamp: '15 min ago',
     },
   ]);
-
-  // Load saved assistance requests from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('safesphere_assistance_reqs');
-      if (saved) {
-        setAssistanceRequests(JSON.parse(saved));
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
 
   const addAssistanceRequest = (reqData: Omit<SpecialAssistanceRequest, 'id' | 'status' | 'timestamp'>) => {
     const newReq: SpecialAssistanceRequest = {
@@ -133,7 +110,7 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       try {
         localStorage.setItem('safesphere_assistance_reqs', JSON.stringify(next));
       } catch {
-        // ignore
+        
       }
       return next;
     });
@@ -141,13 +118,45 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setIsNotificationDrawerOpen(true);
   };
 
-  // Monitor network connectivity & handle offline sync
+  
+  const [checkedPrepItems, setCheckedPrepItems] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    PREPAREDNESS_ITEMS.forEach(item => {
+      initial[item.id] = !!item.defaultChecked;
+    });
+    return initial;
+  });
+
+  
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => {
+      try {
+        const savedLang = localStorage.getItem('safesphere_lang') as SupportedLanguage;
+        if (savedLang && TRANSLATIONS[savedLang]) {
+          setCurrentLanguage(savedLang);
+        }
+        const savedReqs = localStorage.getItem('safesphere_assistance_reqs');
+        if (savedReqs) {
+          setAssistanceRequests(JSON.parse(savedReqs));
+        }
+        const savedPrep = localStorage.getItem('safesphere_prep_items');
+        if (savedPrep) {
+          setCheckedPrepItems(JSON.parse(savedPrep));
+        }
+      } catch {
+        
+      }
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
+  
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
 
     if (typeof window !== 'undefined') {
-      setIsOffline(!navigator.onLine);
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
     }
@@ -160,33 +169,13 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, []);
 
-  // LocalStorage state for preparedness checklist
-  const [checkedPrepItems, setCheckedPrepItems] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    PREPAREDNESS_ITEMS.forEach(item => {
-      initial[item.id] = !!item.defaultChecked;
-    });
-    return initial;
-  });
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('safesphere_prep_items');
-      if (saved) {
-        setCheckedPrepItems(JSON.parse(saved));
-      }
-    } catch {
-      // ignore SSR or local storage error
-    }
-  }, []);
-
   const togglePrepItem = (id: string) => {
     setCheckedPrepItems(prev => {
       const next = { ...prev, [id]: !prev[id] };
       try {
         localStorage.setItem('safesphere_prep_items', JSON.stringify(next));
       } catch {
-        // ignore
+        
       }
       return next;
     });

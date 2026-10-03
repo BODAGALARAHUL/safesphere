@@ -3,11 +3,14 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { DisasterProvider } from '@/context/DisasterContext';
 import { AppHeader } from '@/components/AppHeader';
+import { AppFooter } from '@/components/AppFooter';
 import { MobileNavigation } from '@/components/MobileNavigation';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { ClientSOSModal } from '@/components/ClientSOSModal';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { SpecialAssistanceModal } from '@/components/SpecialAssistanceModal';
+import { BootGate } from '@/components/BootGate';
+import { RouteTransition } from '@/components/RouteTransition';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,17 +36,22 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 w-full max-w-full overflow-x-hidden">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className="min-h-screen flex flex-col bg-[#071018] text-[#f4f8fb] selection:bg-[#f43f5e] selection:text-white">
         <DisasterProvider>
-          <AppHeader />
-          <OfflineBanner />
-          {/* Main Content Area with generous bottom padding so bottom fixed navbar never covers buttons */}
-          <div className="flex-1 w-full max-w-full overflow-x-hidden pb-28 md:pb-8">{children}</div>
-          <MobileNavigation />
-          <ClientSOSModal />
-          <NotificationCenter />
-          <SpecialAssistanceModal />
+          <BootGate>
+            <AppHeader />
+            <OfflineBanner />
+            
+            <div className="flex-1 w-full pb-28 md:pb-0 min-w-0">
+              <RouteTransition>{children}</RouteTransition>
+            </div>
+            <AppFooter />
+            <MobileNavigation />
+            <ClientSOSModal />
+            <NotificationCenter />
+            <SpecialAssistanceModal />
+          </BootGate>
         </DisasterProvider>
       </body>
     </html>

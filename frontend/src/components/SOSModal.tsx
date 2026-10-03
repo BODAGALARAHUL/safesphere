@@ -3,19 +3,36 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useDisaster } from '@/context/DisasterContext';
-import { X, Phone, Share2, MapPin, AlertOctagon, CheckCircle2, Volume2, VolumeX, ShieldAlert } from 'lucide-react';
+import {
+  X,
+  Phone,
+  Share2,
+  MapPin,
+  AlertOctagon,
+  Volume2,
+  VolumeX,
+  ShieldAlert,
+  ArrowRight
+} from 'lucide-react';
 
 export const SOSModal: React.FC = () => {
-  const { isSOSOpen, setIsSOSOpen, selectedLocation, isAudioSirenPlaying, toggleAudioSiren, t } = useDisaster();
+  const {
+    isSOSOpen,
+    setIsSOSOpen,
+    selectedLocation,
+    isAudioSirenPlaying,
+    toggleAudioSiren
+  } = useDisaster();
   
   const [holdProgress, setHoldProgress] = useState<number>(0);
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const [locationShared, setLocationShared] = useState<boolean>(false);
+  const [countdown, setCountdown] = useState<number>(5);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const holdStartTimeRef = useRef<number | null>(null);
 
-  const HOLD_DURATION_MS = 2500; // 2.5 seconds hold duration
+  const HOLD_DURATION_MS = 1800;
 
   const startHolding = () => {
     if (isActivated) return;
@@ -32,7 +49,7 @@ export const SOSModal: React.FC = () => {
         setIsActivated(true);
         setHoldProgress(100);
       }
-    }, 30);
+    }, 25);
   };
 
   const cancelHolding = () => {
@@ -45,8 +62,28 @@ export const SOSModal: React.FC = () => {
   };
 
   useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    if (isActivated) {
+      timer = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            if (timer) clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timer) clearInterval(timer);
+    };
+  }, [isActivated]);
+
+  useEffect(() => {
+    const currentInterval = intervalRef.current;
+    return () => {
+      if (currentInterval) clearInterval(currentInterval);
     };
   }, []);
 
@@ -54,6 +91,7 @@ export const SOSModal: React.FC = () => {
     setIsActivated(false);
     setHoldProgress(0);
     setLocationShared(false);
+    setCountdown(5);
   };
 
   const handleClose = () => {
@@ -65,62 +103,58 @@ export const SOSModal: React.FC = () => {
   if (!isSOSOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg rounded-2xl bg-[#10151d] border border-[rgba(255,255,255,0.12)] p-6 sm:p-7 shadow-2xl text-[#f8fafc] overflow-hidden">
         
-        {/* Close Button */}
+        
         <button
           type="button"
           onClick={handleClose}
-          className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+          className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-[#18212d] text-[#718096] hover:text-white transition-colors focus-command"
           aria-label="Close SOS modal"
         >
           <X className="h-5 w-5" />
         </button>
 
-        {/* Modal Header */}
-        <div className="flex items-center gap-2 mb-4">
-          <ShieldAlert className="h-6 w-6 text-red-600 animate-pulse shrink-0" />
-          <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
-            {t('sosModalTitle')}
+        
+        <div className="flex items-center gap-2.5 mb-4">
+          <ShieldAlert className="h-6 w-6 text-[#ff304f] animate-pulse shrink-0" />
+          <h2 className="text-xl font-black text-white tracking-tight">
+            Emergency SOS Confirmation
           </h2>
         </div>
 
         {!isActivated ? (
-          /* Initial State: Hold to Activate */
-          <div className="flex flex-col items-center text-center py-4">
-            <div className="p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl mb-6 text-xs text-red-800 dark:text-red-300 font-medium max-w-sm">
-              {t('sosModalSubtitle')}
+          
+          <div className="flex flex-col items-center text-center py-2 space-y-4">
+            <div className="p-3 bg-[#18212d] border border-[rgba(255,255,255,0.08)] rounded-xl text-xs text-[#aab7c7] font-medium max-w-sm">
+              Press and hold for 2 seconds to initiate national emergency dispatch (112) and transmit your GPS coordinates.
             </div>
 
-            {/* Circular Hold Button */}
-            <div className="relative my-4 flex items-center justify-center">
-              {/* Progress Ring */}
-              <svg className="w-48 h-48 transform -rotate-90">
+            
+            <div className="relative my-2 flex items-center justify-center">
+              <svg className="w-44 h-44 transform -rotate-90">
                 <circle
-                  cx="96"
-                  cy="96"
-                  r="86"
-                  className="text-slate-200 dark:text-slate-800"
-                  strokeWidth="10"
-                  stroke="currentColor"
+                  cx="88"
+                  cy="88"
+                  r="78"
+                  className="stroke-[#18212d]"
+                  strokeWidth="8"
                   fill="transparent"
                 />
                 <circle
-                  cx="96"
-                  cy="96"
-                  r="86"
-                  className="text-red-600 transition-all duration-75"
-                  strokeWidth="10"
-                  strokeDasharray={540}
-                  strokeDashoffset={540 - (540 * holdProgress) / 100}
+                  cx="88"
+                  cy="88"
+                  r="78"
+                  className="stroke-[#ff304f] transition-all duration-75"
+                  strokeWidth="8"
+                  strokeDasharray={490}
+                  strokeDashoffset={490 - (490 * holdProgress) / 100}
                   strokeLinecap="round"
-                  stroke="currentColor"
                   fill="transparent"
                 />
               </svg>
 
-              {/* Interactive Button */}
               <button
                 type="button"
                 onMouseDown={startHolding}
@@ -128,109 +162,119 @@ export const SOSModal: React.FC = () => {
                 onMouseLeave={cancelHolding}
                 onTouchStart={startHolding}
                 onTouchEnd={cancelHolding}
-                onKeyDown={(e) => {
-                  if (e.key === ' ' || e.key === 'Enter') startHolding();
-                }}
-                onKeyUp={cancelHolding}
-                className="absolute w-36 h-36 rounded-full bg-red-600 hover:bg-red-700 active:scale-95 text-white flex flex-col items-center justify-center font-extrabold shadow-xl transition-transform select-none focus:outline-none focus:ring-4 focus:ring-red-400"
-                aria-label="Hold for emergency activation"
+                className="absolute flex flex-col items-center justify-center h-32 w-32 rounded-full bg-[#ff304f] hover:bg-[#e02441] active:scale-95 text-white font-black shadow-2xl transition-transform select-none focus-command"
               >
                 <AlertOctagon className="h-8 w-8 mb-1" />
-                <span className="text-lg font-black tracking-wider">HOLD SOS</span>
-                <span className="text-[10px] opacity-80 font-normal">Touch / Spacebar</span>
+                <span className="text-sm font-black tracking-wider">HOLD SOS</span>
+                <span className="text-[10px] opacity-80 font-semibold">2 SECONDS</span>
               </button>
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-              {holdProgress > 0 ? `Holding... ${Math.round(holdProgress)}%` : 'Release to cancel at any time.'}
-            </p>
+            
+            <div className="w-full pt-2 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between text-xs text-[#718096]">
+              <span>Need immediate bypass?</span>
+              <button
+                type="button"
+                onClick={() => setIsActivated(true)}
+                className="text-[#ff304f] hover:underline font-bold"
+              >
+                Tap to Activate Instantly
+              </button>
+            </div>
           </div>
         ) : (
-          /* Activated State: Action Center */
-          <div className="flex flex-col gap-4 animate-in zoom-in-95 duration-200">
-            {/* Status Banner */}
-            <div className="rounded-xl bg-red-600 text-white p-4 flex items-center justify-between shadow-md">
+          
+          <div className="space-y-4 py-2">
+            
+            
+            <div className="p-4 rounded-xl bg-[rgba(255,48,79,0.1)] border border-[rgba(255,48,79,0.35)] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-3 w-3 rounded-full bg-white animate-ping" />
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ff304f] text-white font-black text-lg">
+                  {countdown}
+                </span>
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wider text-red-100">
-                    STATUS ACTIVE
-                  </div>
-                  <div className="text-lg font-black">EMERGENCY STATE ACTIVATED</div>
+                  <h4 className="font-bold text-sm text-white">
+                    {countdown > 0 ? 'Transmitting Distress Signal' : 'Distress Signal Transmitted'}
+                  </h4>
+                  <p className="text-xs text-[#aab7c7]">
+                    {countdown > 0 ? `Auto-dispatching in ${countdown}s` : 'SDMA & Police Notified'}
+                  </p>
                 </div>
               </div>
+
+              {countdown > 0 && (
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="px-3 py-1.5 rounded-lg bg-[#18212d] hover:bg-[#202b3a] text-xs font-bold text-white border border-[rgba(255,255,255,0.1)]"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+
+            
+            <div className="p-3.5 rounded-xl bg-[#18212d] border border-[rgba(255,255,255,0.08)] text-xs space-y-1">
+              <span className="text-[10px] font-bold uppercase text-[#718096] tracking-wider block">
+                GPS Coordinates Transmitted
+              </span>
+              <p className="font-bold text-[#f8fafc] flex items-center gap-1.5">
+                <MapPin className="h-4 w-4 text-[#16c784] shrink-0" />
+                {selectedLocation} (Lat: 23.0125° N, Lng: 72.5642° E)
+              </p>
+            </div>
+
+            
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={toggleAudioSiren}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-white text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition-colors ${
+                  isAudioSirenPlaying
+                    ? 'bg-[rgba(245,197,66,0.2)] border-[#f5c542] text-[#f5c542]'
+                    : 'bg-[#18212d] border-[rgba(255,255,255,0.08)] text-[#f8fafc] hover:bg-[#202b3a]'
+                }`}
               >
                 {isAudioSirenPlaying ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                <span>{isAudioSirenPlaying ? 'Mute Siren' : 'Siren Alarm'}</span>
+                <span>{isAudioSirenPlaying ? 'Mute Siren' : 'Play Alarm Siren'}</span>
               </button>
-            </div>
 
-            {/* Simulated GPS Readout */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-3 text-xs flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-red-600 shrink-0" />
-                <div>
-                  <span className="font-semibold text-slate-900 dark:text-white">{selectedLocation}</span>
-                  <div className="text-[11px] text-slate-500">GPS: 23.0125° N, 72.5642° E (High Accuracy 5m)</div>
-                </div>
-              </div>
-              <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-semibold text-[10px]">
-                LIVE LOCK
-              </span>
-            </div>
-
-            {/* Primary Action 1: CALL 112 */}
-            <a
-              href="tel:112"
-              className="flex items-center justify-center gap-3 h-14 rounded-xl bg-red-600 hover:bg-red-700 text-white text-lg font-black shadow-lg transition-colors focus:outline-none focus:ring-4 focus:ring-red-400"
-            >
-              <Phone className="h-6 w-6" />
-              <span>{t('confirmSOSCall')}</span>
-            </a>
-
-            {/* Secondary Actions */}
-            <div className="grid grid-cols-2 gap-3">
-              {/* Share Location via SMS */}
               <button
                 type="button"
-                onClick={() => setLocationShared(true)}
-                className="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                onClick={() => {
+                  setLocationShared(true);
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(`EMERGENCY SOS: I need help at ${selectedLocation}. Lat: 23.0125, Lng: 72.5642`);
+                  }
+                }}
+                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-[#18212d] border border-[rgba(255,255,255,0.08)] text-xs font-bold text-[#f8fafc] hover:bg-[#202b3a] transition-colors"
               >
-                {locationShared ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    <span>Location Broadcasted</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="h-4 w-4 text-sky-600" />
-                    <span>Broadcast Location SMS</span>
-                  </>
-                )}
+                <Share2 className="h-4 w-4 text-[#38a8ff]" />
+                <span>{locationShared ? 'Copied Location' : 'Share Location'}</span>
               </button>
+            </div>
 
-              {/* Find Nearest Shelter */}
+            
+            <a
+              href="tel:112"
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-[#ff304f] hover:bg-[#e02441] text-white font-black text-sm shadow-xl transition-all"
+            >
+              <Phone className="h-5 w-5" />
+              <span>Call 112 National Emergency Now</span>
+            </a>
+
+            
+            <div className="text-center pt-1">
               <Link
                 href="/safe-zones"
                 onClick={handleClose}
-                className="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#38a8ff] hover:underline"
               >
-                <MapPin className="h-4 w-4 text-emerald-600" />
-                <span>{t('findSafeLocation')}</span>
+                <span>Navigate to Paldi Community Shelter (1.2 km)</span>
+                <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
-            <button
-              type="button"
-              onClick={handleReset}
-              className="text-xs text-slate-500 dark:text-slate-400 hover:underline text-center mt-2"
-            >
-              Deactivate & Reset SOS
-            </button>
           </div>
         )}
 

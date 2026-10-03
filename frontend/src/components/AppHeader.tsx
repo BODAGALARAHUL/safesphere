@@ -1,80 +1,181 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useDisaster } from '@/context/DisasterContext';
-import { SUPPORTED_LANGUAGES } from '@/data/translationsData';
-import { Shield, MapPin, Bell, AlertTriangle, ShieldCheck, ChevronDown, Check, HeartHandshake, Globe } from 'lucide-react';
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/data/translationsData';
+import { 
+  MapPin, 
+  Bell, 
+  ChevronDown, 
+  Check, 
+  AlertOctagon,
+  Home,
+  ShieldAlert,
+  Phone,
+  BookOpen,
+  CheckSquare
+} from 'lucide-react';
 
 const LOCATIONS = [
-  'Ahmedabad (Paldi / Vasna)',
-  'Ahmedabad (Satellite / SG Highway)',
-  'Mumbai Coast (Colaba / Worli)',
-  'Surat (Hazira Coastal Belt)',
-  'Delhi NCR (Yamuna Floodplain)',
+  'Ahmedabad · Paldi',
+  'Ahmedabad · Vasna',
+  'Ahmedabad · Satellite',
+  'Ahmedabad · Ellisbridge',
 ];
 
 export const AppHeader: React.FC = () => {
+  const pathname = usePathname();
   const { 
-    isThreatMode, 
-    toggleThreatMode, 
     selectedLocation, 
     setSelectedLocation, 
-    setIsSOSOpen,
+    setIsSOSOpen, 
     setIsNotificationDrawerOpen,
-    setIsAssistanceModalOpen,
+    assistanceRequests,
     currentLanguage,
     setLanguage,
-    t
+    isThreatMode
   } = useDisaster();
 
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [sosHoldProgress, setSosHoldProgress] = useState(0);
+  const animationFrameRef = useRef<number | null>(null);
 
   const activeLangOption = SUPPORTED_LANGUAGES.find(l => l.code === currentLanguage) || SUPPORTED_LANGUAGES[0];
+  const pendingCount = assistanceRequests.filter(r => r.status.includes('Dispatched') || r.status.includes('Assigned')).length;
+
+  const navLinks = [
+    { href: '/', label: 'Overview', icon: Home },
+    { href: '/alerts', label: 'Alerts', icon: Bell },
+    { href: '/safe-zones', label: 'Safe Havens', icon: MapPin },
+    { href: '/risk-levels', label: 'Risk Spectrum', icon: ShieldAlert },
+    { href: '/emergency', label: '112 Speed-Dial', icon: Phone },
+    { href: '/disasters', label: 'Field SOPs', icon: BookOpen },
+    { href: '/preparedness', label: 'Readiness Kit', icon: CheckSquare },
+  ];
+
+  const startHold = () => {
+    const startTime = Date.now();
+    const duration = 1800;
+
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(100, (elapsed / duration) * 100);
+      setSosHoldProgress(progress);
+
+      if (progress < 100) {
+        animationFrameRef.current = requestAnimationFrame(updateProgress);
+      } else {
+        setIsSOSOpen(true);
+        setSosHoldProgress(0);
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(updateProgress);
+  };
+
+  const cancelHold = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    setSosHoldProgress(0);
+  };
+
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setIsLocationDropdownOpen(false);
+    setIsLangDropdownOpen(false);
+  }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm transition-colors">
-      
-      {/* Primary Top Bar */}
-      <div className="w-full flex h-13 sm:h-14 items-center justify-between px-2.5 sm:px-6 lg:px-8 gap-1">
+    <header className="sticky top-0 z-40 w-full border-b border-[#243646] bg-[#071018]/95 backdrop-blur-xl transition-colors">
+      <div className="w-full flex h-16 items-center justify-between px-3 sm:px-6 lg:px-8 xl:px-10 gap-2 sm:gap-3 lg:gap-6">
 
-        {/* Left: Brand Identity */}
-        <Link href="/" className="flex items-center gap-1.5 shrink-0 focus:outline-none rounded-md">
-          <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-sm">
-            <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-400 dark:text-emerald-600" />
+        
+        <Link href="/" className="flex items-center shrink-0 focus-command rounded-xl min-w-0" aria-label="SafeSphere Home">
+          
+          <div className="hidden sm:flex items-center h-12 w-auto">
+            <Image
+              src="/safesphere-logo.png"
+              alt="SafeSphere - Civic Intelligence Platform"
+              width={886}
+              height={248}
+              priority
+              className="h-10 lg:h-11 w-auto max-w-[190px] lg:max-w-[240px] object-contain select-none drop-shadow-[0_0_14px_rgba(34,211,238,0.25)]"
+            />
           </div>
-          <div className="flex items-center">
-            <span className="font-extrabold tracking-tight text-slate-900 dark:text-white text-sm sm:text-lg leading-tight">
-              {t('appTitle')}
-            </span>
-            <span className="hidden md:inline-block ml-1 text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
-              SIH1462
-            </span>
+
+          
+          <div className="flex sm:hidden items-center shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#101c27] border border-[#243646] p-1 shadow-md">
+              <Image
+                src="/safesphere-emblem-v2.png"
+                alt="SafeSphere"
+                width={262}
+                height={232}
+                priority
+                className="h-full w-full object-contain select-none drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]"
+              />
+            </div>
           </div>
         </Link>
 
-        {/* Desktop / Tablet Center Location Selector */}
-        <div className="hidden sm:flex items-center gap-2 shrink min-w-0">
-          <div className="relative shrink min-w-0">
+        
+        <nav className="hidden xl:flex items-center gap-1 text-xs font-semibold" aria-label="Desktop Navigation">
+          {navLinks.map((item) => {
+            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+            const Icon = item.icon;
+            const isEmergency = item.href === '/emergency';
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${
+                  isActive
+                    ? isEmergency
+                      ? 'bg-[#f43f5e]/15 text-[#f43f5e] border-[#f43f5e]/30 shadow-sm'
+                      : 'bg-[#162532] text-white border-[#243646] shadow-sm'
+                    : isEmergency
+                    ? 'text-[#f43f5e] border-transparent hover:bg-[#f43f5e]/10'
+                    : 'text-[#b3c2d0] border-transparent hover:text-[#f4f8fb] hover:bg-[#101c27]'
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        
+        <div className="flex items-center gap-1 sm:gap-2.5 shrink-0 min-w-0">
+          
+          
+          <div className="relative">
             <button
               type="button"
               onClick={() => {
                 setIsLocationDropdownOpen(!isLocationDropdownOpen);
                 setIsLangDropdownOpen(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-700 transition-colors max-w-[190px] min-w-0"
-              aria-label="Select location"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-[#f4f8fb] bg-[#101c27] hover:bg-[#162532] rounded-lg border border-[#243646] hover:border-[#355066] transition-all cursor-pointer max-w-[85px] min-[380px]:max-w-[110px] sm:max-w-[180px] min-h-[38px]"
+              aria-label="Select location sector"
             >
-              <MapPin className="h-3.5 w-3.5 text-slate-500 shrink-0" />
-              <span className="truncate min-w-0">{selectedLocation}</span>
-              <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+              <span className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full ${isThreatMode ? 'bg-[#f43f5e]' : 'bg-[#10b981]'} animate-pulse shrink-0`} />
+              <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#22d3ee] shrink-0" />
+              <span className="truncate text-[11px] sm:text-xs">{selectedLocation.replace('Ahmedabad · ', '')}</span>
+              <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-[#71879a] shrink-0" />
             </button>
 
             {isLocationDropdownOpen && (
-              <div className="absolute left-0 mt-1.5 w-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-2xl z-50">
-                <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Simulated Location
+              <div className="absolute right-0 mt-2 w-56 sm:w-60 rounded-2xl border border-[#355066] bg-[#101c27] p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-3 py-1.5 text-[10px] font-mono font-bold text-[#71879a] uppercase tracking-wider">
+                  Current Monitored Sector
                 </div>
                 {LOCATIONS.map(loc => (
                   <button
@@ -84,21 +185,17 @@ export const AppHeader: React.FC = () => {
                       setSelectedLocation(loc);
                       setIsLocationDropdownOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-left text-[#f4f8fb] hover:bg-[#162532] rounded-xl transition-colors cursor-pointer"
                   >
                     <span className="truncate">{loc}</span>
-                    {selectedLocation === loc && <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
+                    {selectedLocation === loc && <Check className="h-4 w-4 text-[#10b981] shrink-0" />}
                   </button>
                 ))}
               </div>
             )}
           </div>
-        </div>
 
-        {/* Right Actions Cluster */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           
-          {/* Indian Language Switcher Dropdown */}
           <div className="relative shrink-0">
             <button
               type="button"
@@ -106,175 +203,103 @@ export const AppHeader: React.FC = () => {
                 setIsLangDropdownOpen(!isLangDropdownOpen);
                 setIsLocationDropdownOpen(false);
               }}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-700 transition-colors"
-              title="Change Language"
+              className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-1.5 text-[11px] sm:text-xs font-bold text-[#b3c2d0] hover:text-[#f4f8fb] bg-[#101c27] hover:bg-[#162532] rounded-lg border border-[#243646] transition-colors cursor-pointer min-h-[38px]"
+              aria-label="Change language"
             >
-              <Globe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span className="text-xs font-black">{activeLangOption.flag}</span>
-              <span className="hidden sm:inline text-xs font-extrabold">{activeLangOption.nativeName}</span>
-              <ChevronDown className="h-3 w-3 text-slate-400 shrink-0" />
+              <span>{activeLangOption.code.toUpperCase()}</span>
+              <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-[#71879a]" />
             </button>
 
             {isLangDropdownOpen && (
-              <div className="absolute right-0 mt-1.5 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="px-3 py-1.5 text-[10px] font-black uppercase text-slate-400 tracking-wider border-b border-slate-100 dark:border-slate-800 mb-1">
-                  Select Language / भाषा चुनें
-                </div>
-                <div className="max-h-64 overflow-y-auto space-y-0.5">
-                  {SUPPORTED_LANGUAGES.map(lang => (
-                    <button
-                      key={lang.code}
-                      type="button"
-                      onClick={() => {
-                        setLanguage(lang.code);
-                        setIsLangDropdownOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-lg transition-colors ${
-                        currentLanguage === lang.code
-                          ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
-                          : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span>{lang.flag}</span>
-                        <span>{lang.nativeName}</span>
-                        <span className="text-[10px] opacity-60">({lang.name})</span>
-                      </span>
-                      {currentLanguage === lang.code && <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
-                    </button>
-                  ))}
-                </div>
+              <div className="absolute right-0 mt-2 w-36 rounded-2xl border border-[#355066] bg-[#101c27] p-1.5 shadow-2xl z-50">
+                {SUPPORTED_LANGUAGES.map(lang => (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => {
+                      setLanguage(lang.code as SupportedLanguage);
+                      setIsLangDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-left text-[#f4f8fb] hover:bg-[#162532] rounded-xl transition-colors cursor-pointer"
+                  >
+                    <span>{lang.nativeName}</span>
+                    {currentLanguage === lang.code && <Check className="h-3.5 w-3.5 text-[#10b981]" />}
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Desktop Special Assistance Trigger */}
-          <button
-            type="button"
-            onClick={() => setIsAssistanceModalOpen(true)}
-            className="hidden lg:flex items-center justify-center h-8 px-2.5 text-xs font-bold rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300 hover:bg-red-100 transition-colors"
-            title="Request Special Assistance"
-          >
-            <HeartHandshake className="h-3.5 w-3.5 text-red-600 shrink-0" />
-            <span className="ml-1">{t('specialAssistance')}</span>
-          </button>
-
-          {/* Desktop Threat Simulator Toggle */}
-          <button
-            type="button"
-            onClick={toggleThreatMode}
-            className={`hidden sm:flex items-center justify-center h-8 px-2.5 text-xs font-semibold rounded-lg border transition-all ${
-              isThreatMode
-                ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800 hover:bg-red-100'
-                : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 hover:bg-emerald-100'
-            }`}
-            title="Toggle Demo State: Safe vs Active Threat"
-          >
-            {isThreatMode ? (
-              <>
-                <AlertTriangle className="h-3.5 w-3.5 text-red-600 animate-pulse shrink-0" />
-                <span className="hidden md:inline ml-1">{t('demoThreatActive')}</span>
-              </>
-            ) : (
-              <>
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                <span className="hidden md:inline ml-1">{t('demoAreaSafe')}</span>
-              </>
-            )}
-          </button>
-
-          {/* Quick SOS Trigger in Header */}
-          <button
-            type="button"
-            onClick={() => setIsSOSOpen(true)}
-            className="flex items-center justify-center h-8 px-2.5 text-xs font-black text-white bg-red-600 hover:bg-red-700 active:scale-95 rounded-lg shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            SOS
-          </button>
-
-          {/* Notifications Icon Button */}
+          
           <button
             type="button"
             onClick={() => setIsNotificationDrawerOpen(true)}
-            className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:bg-slate-100 transition-colors"
-            aria-label="View notifications and special assistance logs"
+            className="relative p-1.5 sm:p-2 rounded-lg bg-[#101c27] hover:bg-[#162532] border border-[#243646] text-[#f4f8fb] transition-colors focus-command cursor-pointer shrink-0 min-h-[38px] min-w-[34px] flex items-center justify-center"
+            title="Incident Broadcast Center"
+            aria-label="Open notifications"
           >
-            <Bell className="h-4 w-4" />
-            {isThreatMode && (
-              <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600" />
+            <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#b3c2d0]" />
+            {pendingCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-[#f43f5e] text-[8px] sm:text-[9px] font-black text-white shadow-md">
+                {pendingCount}
               </span>
             )}
           </button>
-        </div>
 
+          
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onMouseDown={startHold}
+              onMouseUp={cancelHold}
+              onMouseLeave={cancelHold}
+              onTouchStart={startHold}
+              onTouchEnd={cancelHold}
+              onClick={() => setIsSOSOpen(true)}
+              className="relative overflow-hidden flex items-center justify-center gap-1 px-2.5 sm:px-4 py-1.5 rounded-lg bg-[#f43f5e] hover:bg-[#e11d48] text-white text-xs sm:text-sm font-black tracking-wider shadow-lg shadow-[#f43f5e]/25 transition-all active:scale-95 select-none focus-command cursor-pointer min-h-[38px]"
+              aria-label="Emergency SOS Beacon"
+            >
+              {sosHoldProgress > 0 && (
+                <span 
+                  className="absolute inset-0 bg-[#be123c] transition-all duration-75 origin-left"
+                  style={{ width: `${sosHoldProgress}%` }}
+                />
+              )}
+              <AlertOctagon className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 relative z-10" />
+              <span className="relative z-10">SOS</span>
+            </button>
+          </div>
+
+        </div>
       </div>
 
-      {/* Secondary Mobile Sub-Bar (<640px) */}
-      <div className="flex sm:hidden items-center justify-between px-2.5 py-1.5 bg-slate-100/90 dark:bg-slate-800/90 border-t border-slate-200/80 dark:border-slate-800 text-xs font-medium gap-2 min-w-0">
-        {/* Mobile Location Selector */}
-        <div className="relative min-w-0 flex-1">
-          <button
-            type="button"
-            onClick={() => {
-              setIsLocationDropdownOpen(!isLocationDropdownOpen);
-              setIsLangDropdownOpen(false);
-            }}
-            className="flex items-center gap-1 text-[11px] font-bold text-slate-800 dark:text-slate-200 min-w-0 w-full"
-          >
-            <MapPin className="h-3 w-3 text-red-600 shrink-0" />
-            <span className="truncate min-w-0 flex-1 text-left">{selectedLocation}</span>
-            <ChevronDown className="h-3 w-3 text-slate-400 shrink-0" />
-          </button>
+      
+      <div className="hidden md:flex xl:hidden border-t border-[#243646] bg-[#071018]/90 px-4 sm:px-6 lg:px-8 xl:px-10 py-2 overflow-x-auto gap-2 text-xs font-semibold no-scrollbar">
+        {navLinks.map((item) => {
+          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+          const Icon = item.icon;
+          const isEmergency = item.href === '/emergency';
 
-          {isLocationDropdownOpen && (
-            <div className="absolute left-0 mt-1.5 w-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-2xl z-50">
-              <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Simulated Location
-              </div>
-              {LOCATIONS.map(loc => (
-                <button
-                  key={loc}
-                  type="button"
-                  onClick={() => {
-                    setSelectedLocation(loc);
-                    setIsLocationDropdownOpen(false);
-                  }}
-                  className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                >
-                  <span className="truncate">{loc}</span>
-                  {selectedLocation === loc && <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Mobile Compact Threat Toggle */}
-        <button
-          type="button"
-          onClick={toggleThreatMode}
-          className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${
-            isThreatMode
-              ? 'bg-red-600 text-white shadow-sm'
-              : 'bg-emerald-600 text-white shadow-sm'
-          }`}
-        >
-          {isThreatMode ? (
-            <>
-              <AlertTriangle className="h-3 w-3 animate-pulse shrink-0" />
-              <span>THREAT ACTIVE</span>
-            </>
-          ) : (
-            <>
-              <ShieldCheck className="h-3 w-3 shrink-0" />
-              <span>AREA SAFE</span>
-            </>
-          )}
-        </button>
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap border text-xs font-semibold transition-colors ${
+                isActive
+                  ? isEmergency
+                    ? 'bg-[#f43f5e]/15 text-[#f43f5e] border-[#f43f5e]/30 shadow-sm'
+                    : 'bg-[#162532] text-white border-[#243646] shadow-sm'
+                  : isEmergency
+                  ? 'text-[#f43f5e] border-transparent hover:bg-[#f43f5e]/10'
+                  : 'text-[#b3c2d0] border-transparent hover:text-white hover:bg-[#101c27]'
+              }`}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </div>
-
     </header>
   );
 };

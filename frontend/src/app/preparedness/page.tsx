@@ -1,9 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDisaster } from '@/context/DisasterContext';
 import { PREPAREDNESS_ITEMS, getLocalizedPrepItem } from '@/data/preparednessData';
-import { CheckCircle2, Droplets, Utensils, Cross, ShieldCheck, Zap, BatteryCharging, Volume2, FileText, Sparkles } from 'lucide-react';
+import { animatePageEnter, createScrollCounter, createScrollProgress, createStaggerReveal } from '@/lib/animations';
+import {
+  CheckCircle2,
+  Droplets,
+  Utensils,
+  Cross,
+  ShieldCheck,
+  Zap,
+  BatteryCharging,
+  Volume2,
+  FileText,
+  CheckSquare,
+  AlertTriangle
+} from 'lucide-react';
 
 export default function PreparednessPage() {
   const {
@@ -12,9 +25,27 @@ export default function PreparednessPage() {
     completedPrepCount,
     totalPrepCount,
     prepPercentage,
-    currentLanguage,
-    t
+    currentLanguage
   } = useDisaster();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scoreCounterRef = useRef<HTMLSpanElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const checklistGridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      animatePageEnter(containerRef.current);
+    }
+    if (scoreCounterRef.current) {
+      createScrollCounter(scoreCounterRef.current, prepPercentage, { suffix: '%', duration: 1.2 });
+    }
+    if (progressBarRef.current) {
+      createScrollProgress(progressBarRef.current, prepPercentage, { duration: 1.2 });
+    }
+    if (checklistGridRef.current) {
+      createStaggerReveal(checklistGridRef.current, '.checklist-item-card', { stagger: 0.05 });
+    }
+  }, [prepPercentage]);
 
   const getPrepIcon = (iconName: string) => {
     switch (iconName) {
@@ -42,117 +73,125 @@ export default function PreparednessPage() {
   const categories = ['Water & Food', 'Medical & Safety', 'Tools & Light', 'Documents & Cash'] as const;
 
   return (
-    <main className="w-full px-4 py-6 sm:px-6 lg:px-8 sm:py-8 space-y-6">
+    <main ref={containerRef} className="atmosphere-preparedness w-full min-h-screen py-6 sm:py-8">
+      <div className="page-shell space-y-6 sm:space-y-8">
       
-      {/* Header */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 uppercase tracking-wider">
-          <CheckCircle2 className="h-4 w-4" />
-          <span>PERSONAL EMERGENCY READY KIT</span>
+      
+      <div className="space-y-1.5 max-w-4xl">
+        <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#16c784] uppercase tracking-wider">
+          <CheckSquare className="h-4 w-4 text-[#16c784]" />
+          <span>Household Readiness & Survival Bag</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          {t('preparednessTitle')}
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+          Personal & Family Emergency Kit Tracker
         </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          {t('preparednessSubtitle')}
+        <p className="text-xs sm:text-sm text-[#94a3b8] max-w-3xl leading-relaxed">
+          Maintain this essential 72-hour survival inventory packed in a portable waterproof bag for immediate deployment during sudden evacuations.
         </p>
       </div>
 
-      {/* Progress Card */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">
-              Preparedness Kit Score
+      
+      <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d121a] p-6 sm:p-8 shadow-2xl space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <span className="font-mono text-xs font-bold text-[#16c784] uppercase tracking-wider">
+              Household Survival Readiness
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              {completedPrepCount} of {totalPrepCount} Essential Provisions Verified
             </h2>
-            <div className="text-xs text-slate-500 font-medium">
-              {completedPrepCount} of {totalPrepCount} essential items ready in your household
-            </div>
+            <p className="text-xs text-[#94a3b8]">
+              {totalPrepCount - completedPrepCount > 0
+                ? `${totalPrepCount - completedPrepCount} critical items remaining before maximum survival threshold.`
+                : 'All essential household provisions ready for emergency evacuation.'}
+            </p>
           </div>
 
-          <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">
-            {prepPercentage}%
-          </span>
+          <div className="flex items-center gap-3 shrink-0">
+            <span ref={scoreCounterRef} className="text-5xl sm:text-6xl font-black text-[#16c784] font-mono tracking-tight">
+              {prepPercentage}%
+            </span>
+          </div>
         </div>
 
-        {/* Visual Progress Bar */}
-        <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+        
+        <div className="w-full h-3 bg-[#151c26] rounded-full overflow-hidden p-0.5 border border-[rgba(255,255,255,0.06)]">
           <div
-            className="h-full bg-emerald-600 transition-all duration-500 rounded-full"
+            ref={progressBarRef}
+            className="h-full bg-gradient-to-r from-[#38a8ff] to-[#16c784] rounded-full transition-all duration-300"
             style={{ width: `${prepPercentage}%` }}
           />
         </div>
 
-        {prepPercentage === 100 && (
-          <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center gap-3 text-emerald-900 dark:text-emerald-200 font-bold text-xs">
-            <Sparkles className="h-5 w-5 text-emerald-600 shrink-0" />
-            <span>Preparedness Complete! Your household is fully equipped for emergency evacuations.</span>
+        {prepPercentage === 100 ? (
+          <div className="flex items-center gap-2 text-xs font-bold text-[#16c784] bg-[rgba(22,199,132,0.1)] p-3 rounded-xl border border-[rgba(22,199,132,0.2)]">
+            <ShieldCheck className="h-4 w-4 shrink-0" />
+            <span>Excellent: Your 72-hour survival kit meets all NDMA and civic safety standards.</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-xs text-[#f5c542] bg-[rgba(245,197,66,0.1)] p-3 rounded-xl border border-[rgba(245,197,66,0.2)]">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span>Attention: Please verify missing survival items below before severe weather impacts your sector.</span>
           </div>
         )}
       </div>
 
-      {/* Checklist Sections Grouped by Category */}
-      <div className="space-y-6">
-        {categories.map(cat => {
-          const rawItems = PREPAREDNESS_ITEMS.filter(item => item.category === cat);
+      
+      <div ref={checklistGridRef} className="space-y-6">
+        {categories.map(category => {
+          const categoryItems = PREPAREDNESS_ITEMS.filter(item => item.category === category);
+          if (categoryItems.length === 0) return null;
 
           return (
-            <div key={cat} className="space-y-3">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 px-1">
-                {cat}
+            <div key={category} className="space-y-3">
+              <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#94a3b8] px-1">
+                {category}
               </h3>
 
-              <div className="space-y-2">
-                {rawItems.map(rawItem => {
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {categoryItems.map(rawItem => {
                   const item = getLocalizedPrepItem(rawItem, currentLanguage);
-                  const isChecked = !!checkedPrepItems[item.id];
-                  const IconComponent = getPrepIcon(item.iconName);
+                  const isChecked = Boolean(checkedPrepItems[item.id]);
+                  const PrepIcon = getPrepIcon(item.iconName);
 
                   return (
-                    <label
+                    <div
                       key={item.id}
                       onClick={() => togglePrepItem(item.id)}
-                      className={`flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all ${
+                      className={`checklist-item-card cursor-pointer flex items-start gap-3.5 p-4 rounded-2xl border transition-all select-none shadow-sm hover:scale-[1.01] ${
                         isChecked
-                          ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20'
-                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300'
+                          ? 'border-[rgba(22,199,132,0.4)] bg-[#0d121a] ring-1 ring-[#16c784]'
+                          : 'border-[rgba(255,255,255,0.06)] bg-[#0d121a] hover:bg-[#151c26] hover:border-[rgba(255,255,255,0.15)]'
                       }`}
                     >
-                      {/* Checkbox */}
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => {}}
-                        className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mt-1 cursor-pointer"
-                      />
-
-                      {/* Icon */}
+                      
                       <div
-                        className={`p-2.5 rounded-xl shrink-0 mt-0.5 ${
+                        className={`flex h-6 w-6 items-center justify-center rounded-lg border transition-colors shrink-0 mt-0.5 ${
                           isChecked
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                            ? 'border-[#16c784] bg-[#16c784] text-white shadow-sm'
+                            : 'border-[rgba(255,255,255,0.2)] bg-[#151c26] text-[#94a3b8]'
                         }`}
                       >
-                        <IconComponent className="h-5 w-5" />
+                        {isChecked ? <CheckCircle2 className="h-4 w-4" /> : <PrepIcon className="h-3.5 w-3.5" />}
                       </div>
 
-                      {/* Content */}
-                      <div className="flex-1">
-                        <div
-                          className={`font-bold text-base ${
-                            isChecked
-                              ? 'line-through text-slate-500 dark:text-slate-400'
-                              : 'text-slate-900 dark:text-white'
-                          }`}
-                        >
-                          {item.title}
+                      
+                      <div className="space-y-0.5 min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4
+                            className={`font-black text-sm ${
+                              isChecked ? 'text-[#16c784] line-through opacity-80' : 'text-white'
+                            }`}
+                          >
+                            {item.title}
+                          </h4>
+                          <span className="font-mono text-[10px] text-[#64748b] bg-[#151c26] px-2 py-0.5 rounded border border-[rgba(255,255,255,0.04)]">
+                            {item.category}
+                          </span>
                         </div>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">
-                          {item.description}
-                        </p>
+                        <p className="text-xs text-[#94a3b8] leading-relaxed">{item.description}</p>
                       </div>
-                    </label>
+                    </div>
                   );
                 })}
               </div>
@@ -160,7 +199,7 @@ export default function PreparednessPage() {
           );
         })}
       </div>
-
+      </div>
     </main>
   );
 }

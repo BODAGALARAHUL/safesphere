@@ -1,0 +1,112 @@
+:root {
+  --background: #071018;
+  --background-secondary: #0b141d;
+  --surface: #101c27;
+  --surface-elevated: #162532;
+  --surface-hover: #1c3040;
+  --border: #243646;
+  --border-strong: #355066;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --text-primary: #f4f8fb;
+  --text-secondary: #b3c2d0;
+  --text-muted: #71879a;
+  --text-dim: #4a5c6e;
+  --cyan: #22d3ee;
+  --blue: #3b82f6;
+  --violet: #8b5cf6;
+  --teal: #14b8a6;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --orange: #f97316;
+  --red: #f43f5e;
+  --color-critical: var(--red);
+  --color-high: var(--orange);
+  --color-moderate: var(--amber);
+  --color-safe: var(--green);
+  --color-info: var(--cyan);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+}
+.atmosphere-home {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(34, 211, 238, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+    linear-gradient(to bottom, var(--background), var(--background-secondary));
+}
+.atmosphere-alerts {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(244, 63, 94, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 15% 40%, rgba(249, 115, 22, 0.06) 0%, transparent 50%),
+    linear-gradient(to bottom, var(--background), var(--background-secondary));
+}
+.atmosphere-safezones {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(ellipse at 70% 0%, rgba(20, 184, 166, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 40%, rgba(34, 211, 238, 0.08) 0%, transparent 50%),
+    linear-gradient(to bottom, var(--background), var(--background-secondary));
+}
+.atmosphere-risk {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+    linear-gradient(to bottom, var(--background), var(--background-secondary));
+}
+.atmosphere-guides {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 15% 35%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    linear-gradient(to bottom, var(--background), var(--background-secondary));
+}
+.atmosphere-emergency {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(ellipse at 50% -10%, rgba(244, 63, 94, 0.18) 0%, transparent 65%),
+    linear-gradient(to bottom, var(--background), var(--background-secondary));
+}
+.atmosphere-preparedness {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 30%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+    linear-gradient(to bottom, var(--background), var(--background-secondary));
+}
+.atmosphere-profile {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.10) 0%, transparent 55%),
+    linear-gradient(to bottom, var(--background), var(--background-secondary));
+}
+@keyframes pulseSlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.04); }
+}
+.animate-pulse-slow {
+  animation: pulseSlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.animate-radar-sweep {
+  animation: sweep 6s linear infinite;
+  transform-origin: center center;
+}
