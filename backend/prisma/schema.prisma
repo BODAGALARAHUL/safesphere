@@ -1,0 +1,438 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// -----------------------------------------------------------------------------
+// ENUMS
+// -----------------------------------------------------------------------------
+
+enum UserRole {
+  CITIZEN
+  DISASTER_OPERATOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum DisasterType {
+  FLOOD
+  CYCLONE
+  EARTHQUAKE
+  LANDSLIDE
+  FIRE
+}
+
+enum AlertSeverity {
+  CRITICAL
+  HIGH_RISK
+  MODERATE
+  SAFE
+}
+
+enum AlertStatus {
+  ACTIVE
+  RESOLVED
+  EXPIRED
+}
+
+enum SafeZoneType {
+  SHELTER
+  HOSPITAL
+  POLICE
+  FIRE
+  EMERGENCY_CENTER
+}
+
+enum SafeZoneStatus {
+  AVAILABLE
+  HIGH_DEMAND
+  FULL
+  CLOSED
+}
+
+enum EmergencyEventType {
+  SOS
+  MEDICAL_EMERGENCY
+  STRUCTURAL_COLLAPSE
+  RESCUE_REQUEST
+  HAZARD_REPORT
+}
+
+enum EmergencyEventStatus {
+  RECEIVED
+  ACKNOWLEDGED
+  DISPATCHED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum EmergencyPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum AssistanceType {
+  ELDERLY
+  MOBILITY
+  OXYGEN_ICU
+  MATERNAL
+  PET
+  OTHER
+}
+
+enum AssistancePriority {
+  CRITICAL
+  MEDICAL_PRIORITY
+  STANDARD
+}
+
+enum AssistanceStatus {
+  RECEIVED
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PrepCategory {
+  WATER_FOOD
+  MEDICAL_SAFETY
+  TOOLS_LIGHT
+  DOCUMENTS_CASH
+}
+
+enum NotificationType {
+  DISASTER_ALERT
+  EMERGENCY_UPDATE
+  ASSISTANCE_DISPATCH
+  SYSTEM
+}
+
+enum NotificationPriority {
+  URGENT
+  HIGH
+  NORMAL
+  LOW
+}
+
+// -----------------------------------------------------------------------------
+// USER & IDENTITY MODELS
+// -----------------------------------------------------------------------------
+
+model User {
+  id                String       @id @default(uuid())
+  email             String?      @unique
+  phone             String?      @unique
+  passwordHash      String
+  role              UserRole     @default(CITIZEN)
+  status            UserStatus   @default(ACTIVE)
+  preferredLanguage String       @default("en")
+  lastLoginAt       DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deletedAt         DateTime?
+
+  profile              UserProfile?
+  emergencyContacts    EmergencyContact[]
+  refreshTokens        RefreshToken[]
+  emergencyEvents      EmergencyEvent[]
+  assistanceRequests   AssistanceRequest[]
+  preparednessProgress UserPreparednessProgress[]
+  notifications        Notification[]
+  auditLogs            AuditLog[]
+
+  @@index([role, status])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model UserProfile {
+  id                 String    @id @default(uuid())
+  userId             String    @unique
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name               String
+  dateOfBirth        DateTime?
+  preferredLanguage  String    @default("en")
+  location           String?
+  latitude           Float?
+  longitude          Float?
+  accessibilityNeeds String?
+  medicalNotes       String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@map("user_profiles")
+}
+
+model RefreshToken {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash       String    @unique
+  expiresAt       DateTime
+  isRevoked       Boolean   @default(false)
+  replacedByToken String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("refresh_tokens")
+}
+
+model EmergencyContact {
+  id           String    @id @default(uuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  phone        String
+  relationship String?
+  priority     Int       @default(1)
+  isPrimary    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@index([userId])
+  @@map("emergency_contacts")
+}
+
+// -----------------------------------------------------------------------------
+// DISASTER, ALERTS & GUIDANCE
+// -----------------------------------------------------------------------------
+
+model Disaster {
+  id          String         @id @default(uuid())
+  type        DisasterType   @unique
+  name        String
+  description String
+  iconName    String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  alerts      DisasterAlert[]
+  guides      DisasterGuide[]
+
+  @@map("disasters")
+}
+
+model DisasterAlert {
+  id                String        @id @default(uuid())
+  disasterId        String?
+  disaster          Disaster?     @relation(fields: [disasterId], references: [id], onDelete: SetNull)
+  disasterType      DisasterType
+  severity          AlertSeverity
+  riskColor         String        @default("red")
+  title             String
+  location          String
+  latitude          Float?
+  longitude         Float?
+  affectedRadiusKm  Float?
+  summary           String
+  description       String?
+  actions           Json          @default("[]")
+  avoidItems        Json          @default("[]")
+  status            AlertStatus   @default(ACTIVE)
+  officialSource    String
+  nearestSafeZoneId String?
+  issuedAt          DateTime      @default(now())
+  expiresAt         DateTime?
+  translations      Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  deletedAt         DateTime?
+
+  @@index([disasterType, status])
+  @@index([severity, status])
+  @@index([issuedAt])
+  @@map("disaster_alerts")
+}
+
+model DisasterGuide {
+  id           String        @id @default(uuid())
+  disasterId   String?
+  disaster     Disaster?     @relation(fields: [disasterId], references: [id], onDelete: SetNull)
+  disasterType DisasterType  @unique
+  title        String
+  summary      String
+  severityRisk String
+  iconName     String
+  beforeSteps  Json          @default("[]")
+  duringSteps  Json          @default("[]")
+  afterSteps   Json          @default("[]")
+  avoidItems   Json          @default("[]")
+  translations Json?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("disaster_guides")
+}
+
+// -----------------------------------------------------------------------------
+// SAFE ZONES
+// -----------------------------------------------------------------------------
+
+model SafeZone {
+  id             String         @id @default(uuid())
+  name           String
+  type           SafeZoneType
+  latitude       Float
+  longitude      Float
+  address        String
+  area           String
+  status         SafeZoneStatus @default(AVAILABLE)
+  capacityBeds   String?
+  facilities     Json           @default("[]")
+  contactNumber  String
+  operatingHours String         @default("24x7 Emergency Active")
+  googleMapsUrl  String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+
+  @@index([type, status])
+  @@index([latitude, longitude])
+  @@map("safe_zones")
+}
+
+// -----------------------------------------------------------------------------
+// EMERGENCY OPERATIONS & SPECIAL ASSISTANCE
+// -----------------------------------------------------------------------------
+
+model EmergencyEvent {
+  id              String               @id @default(uuid())
+  userId          String?
+  user            User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  eventType       EmergencyEventType   @default(SOS)
+  status          EmergencyEventStatus @default(RECEIVED)
+  priority        EmergencyPriority    @default(CRITICAL)
+  latitude        Float?
+  longitude       Float?
+  locationAddress String?
+  description     String?
+  idempotencyKey  String?              @unique
+  resolutionNotes String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  resolvedAt      DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("emergency_events")
+}
+
+model AssistanceRequest {
+  id           String             @id @default(uuid())
+  userId       String?
+  user         User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type         AssistanceType
+  priority     AssistancePriority @default(STANDARD)
+  status       AssistanceStatus   @default(RECEIVED)
+  name         String
+  phone        String
+  location     String
+  latitude     Float?
+  longitude    Float?
+  details      String
+  assignedTeam String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([status, priority])
+  @@map("assistance_requests")
+}
+
+// -----------------------------------------------------------------------------
+// PREPAREDNESS
+// -----------------------------------------------------------------------------
+
+model PreparednessTemplate {
+  id          String         @id @default(uuid())
+  category    PrepCategory
+  title       String
+  description String
+  iconName    String
+  isDefault   Boolean        @default(true)
+  orderIndex  Int            @default(0)
+  translations Json?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  userProgress UserPreparednessProgress[]
+
+  @@index([category])
+  @@map("preparedness_templates")
+}
+
+model UserPreparednessProgress {
+  id         String               @id @default(uuid())
+  userId     String
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId String
+  template   PreparednessTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  isChecked  Boolean              @default(false)
+  checkedAt  DateTime?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  @@unique([userId, templateId])
+  @@index([userId])
+  @@map("user_preparedness_progress")
+}
+
+// -----------------------------------------------------------------------------
+// NOTIFICATIONS & AUDIT LOGS
+// -----------------------------------------------------------------------------
+
+model Notification {
+  id                  String               @id @default(uuid())
+  recipientId         String
+  recipient           User                 @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  type                NotificationType     @default(SYSTEM)
+  title               String
+  body                String
+  priority            NotificationPriority @default(NORMAL)
+  isRead              Boolean              @default(false)
+  readAt              DateTime?
+  relatedResourceType String?
+  relatedResourceId   String?
+  metadata            Json?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@index([recipientId, isRead])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id           String    @id @default(uuid())
+  userId       String?
+  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action       String
+  resourceType String
+  resourceId   String?
+  ipAddress    String?
+  userAgent    String?
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
