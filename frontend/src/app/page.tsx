@@ -6,7 +6,7 @@ import { useDisaster } from '@/context/DisasterContext';
 import { ThreatBanner } from '@/components/emergency/ThreatBanner';
 import { QuickActionGrid } from '@/components/emergency/QuickActionGrid';
 import { SafeZoneMap } from '@/components/SafeZoneMap';
-import { MOCK_SAFE_ZONES, SafeZone } from '@/data/safeZonesData';
+import { SafeZoneService } from '@/services';
 import {
   animatePageEnter,
   createScrollReveal,
@@ -28,7 +28,8 @@ export default function HomePage() {
     prepPercentage,
     completedPrepCount,
     totalPrepCount,
-    selectedLocation
+    selectedLocation,
+    userLocation
   } = useDisaster();
 
   const containerRef = useRef<HTMLElement>(null);
@@ -38,7 +39,7 @@ export default function HomePage() {
   const prepBarRef = useRef<HTMLDivElement>(null);
   const telemetrySectionRef = useRef<HTMLElement>(null);
 
-  const [selectedZone, setSelectedZone] = useState<SafeZone | undefined>(MOCK_SAFE_ZONES[0]);
+  const [userSelectedZoneId, setUserSelectedZoneId] = useState<string | null>(null);
   const [mapCategory, setMapCategory] = useState<string>('All');
 
   useEffect(() => {
@@ -50,9 +51,14 @@ export default function HomePage() {
     if (telemetrySectionRef.current) createScrollReveal(telemetrySectionRef.current, { yOffset: 24 });
   }, [prepPercentage]);
 
-  const filteredSafeZones = MOCK_SAFE_ZONES.filter(z => 
-    mapCategory === 'All' ? true : z.type === mapCategory
-  );
+  const filteredSafeZones = SafeZoneService.getSafeZones({
+    category: mapCategory,
+    area: selectedLocation,
+    userCoords: userLocation.coordinates,
+  });
+
+  const nearestShelter = SafeZoneService.getNearestSafeZone(userLocation.coordinates, selectedLocation);
+  const selectedZone = (userSelectedZoneId ? filteredSafeZones.find(z => z.id === userSelectedZoneId) : undefined) || nearestShelter || filteredSafeZones[0];
 
   return (
     <main 
@@ -62,7 +68,7 @@ export default function HomePage() {
       <div className="page-shell space-y-8">
       
       
-      <ThreatBanner alert={activeAlert} nearestShelter={MOCK_SAFE_ZONES[0]} />
+      <ThreatBanner alert={activeAlert} nearestShelter={nearestShelter} />
 
       
       <section className="space-y-3">
@@ -137,7 +143,9 @@ export default function HomePage() {
             <SafeZoneMap
               safeZones={filteredSafeZones}
               selectedZone={selectedZone}
-              onSelectZone={setSelectedZone}
+              onSelectZone={(zone) => setUserSelectedZoneId(zone ? zone.id : null)}
+              userCoords={userLocation.coordinates}
+              userLocationLabel={selectedLocation}
             />
           </div>
 
@@ -149,7 +157,7 @@ export default function HomePage() {
               return (
                 <div
                   key={zone.id}
-                  onClick={() => setSelectedZone(zone)}
+                  onClick={() => setUserSelectedZoneId(zone.id)}
                   className={`cursor-pointer p-4 rounded-2xl border transition-all space-y-2.5 ${
                     isSelected
                       ? 'bg-[#162532] border-[#22d3ee] shadow-xl ring-1 ring-[#22d3ee]'

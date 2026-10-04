@@ -7,7 +7,7 @@ import {
   Home,
   Bell,
   MapPin,
-  BookOpen,
+  CheckSquare,
   Phone
 } from 'lucide-react';
 
@@ -17,9 +17,9 @@ export const MobileNavigation: React.FC = () => {
   const navItems = [
     { href: '/', label: 'Overview', icon: Home },
     { href: '/alerts', label: 'Alerts', icon: Bell },
-    { href: '/safe-zones', label: 'Safe Havens', icon: MapPin },
+    { href: '/safe-zones', label: 'Havens', icon: MapPin },
     { href: '/emergency', label: '112 Dial', icon: Phone },
-    { href: '/disasters', label: 'SOPs', icon: BookOpen },
+    { href: '/preparedness', label: 'Readiness', icon: CheckSquare },
   ];
 
   return (

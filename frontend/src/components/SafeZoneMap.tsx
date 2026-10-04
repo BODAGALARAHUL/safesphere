@@ -2,7 +2,7 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { SafeZone } from '@/data/safeZonesData';
+import type { SafeZone } from '@/types';
 import { Loader2 } from 'lucide-react';
 
 const SafeZoneMapInner = dynamic(() => import('./SafeZoneMapInner'), {
@@ -19,6 +19,8 @@ interface SafeZoneMapProps {
   safeZones: SafeZone[];
   selectedZone?: SafeZone;
   onSelectZone: (zone: SafeZone) => void;
+  userCoords?: { latitude: number; longitude: number };
+  userLocationLabel?: string;
 }
 
 export const SafeZoneMap: React.FC<SafeZoneMapProps> = (props) => {

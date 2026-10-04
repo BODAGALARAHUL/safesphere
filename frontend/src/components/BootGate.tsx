@@ -120,11 +120,11 @@ export const BootGate: React.FC<BootGateProps> = ({ children }) => {
 
             
             <div className="space-y-1">
-              <h1 className="text-2xl sm:text-[26px] font-semibold tracking-[-0.02em] text-[#EAFBFF] drop-shadow-[0_0_10px_rgba(34,211,238,0.22)] flex items-center justify-center leading-none">
-                SafeSphere
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center justify-center leading-none">
+                Safe<span className="text-[#22d3ee]">Sphere</span>
               </h1>
-              <div className="text-[9.5px] sm:text-[10px] font-mono font-medium tracking-[0.25em] text-[#67D9F5] uppercase">
-                CIVIC INTELLIGENCE PLATFORM
+              <div className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#22d3ee] uppercase">
+                Civic Disaster Safety Platform
               </div>
             </div>
           </div>

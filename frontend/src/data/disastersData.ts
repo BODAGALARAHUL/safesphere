@@ -1,32 +1,7 @@
 import { SupportedLanguage } from './translationsData';
+import type { SeverityLevel, AlertRiskColor, DisasterAlert } from '@/types';
 
-export type SeverityLevel = 'CRITICAL' | 'HIGH_RISK' | 'MODERATE' | 'SAFE';
-
-export interface DisasterAlert {
-  id: string;
-  disasterType: 'Flood' | 'Cyclone' | 'Earthquake' | 'Heatwave' | 'Landslide' | 'Fire';
-  severity: SeverityLevel;
-  riskColor: 'red' | 'orange' | 'yellow' | 'green';
-  title: string;
-  location: string;
-  issuedAt: string;
-  timestamp: string;
-  summary: string;
-  affectedRadius: string;
-  statusText: string;
-  actions: string[];
-  avoidItems: string[];
-  nearestSafeZoneId: string;
-  officialSource: string;
-  translations?: Partial<Record<SupportedLanguage, {
-    title?: string;
-    location?: string;
-    summary?: string;
-    statusText?: string;
-    actions?: string[];
-    avoidItems?: string[];
-  }>>;
-}
+export type { SeverityLevel, AlertRiskColor, DisasterAlert };
 
 export const MOCK_DISASTER_ALERTS: DisasterAlert[] = [
   {
@@ -285,6 +260,210 @@ export const MOCK_DISASTER_ALERTS: DisasterAlert[] = [
         ],
         avoidItems: [
           'ఎండ తీవ్రత ఉన్న సమయంలో కఠిన శ్రమ చేయవద్దు.'
+        ]
+      }
+    }
+  },
+  {
+    id: 'alert-earthquake-04',
+    disasterType: 'Earthquake',
+    severity: 'CRITICAL',
+    riskColor: 'red',
+    title: 'SEISMIC WARNING: Magnitude 5.8 Tremor in Kutch Mainland Fault',
+    location: 'Kutch & Saurashtra Region (Bhuj, Gandhidham & Morbi)',
+    issuedAt: '25 min ago',
+    timestamp: '2026-08-08T14:40:00Z',
+    summary: 'Strong seismic tremor detected along the Kutch Mainland Fault. Structural shaking reported across residential and commercial sectors with active aftershock risk.',
+    affectedRadius: '45 km from Epicenter',
+    statusText: 'Critical Threat - Drop, Cover, and Hold. Evacuate damaged multi-story structures.',
+    actions: [
+      'Drop to ground, take cover under sturdy furniture, and hold on until tremors cease.',
+      'Evacuate high-rise buildings using emergency stairwells; do NOT use elevators.',
+      'Turn off domestic gas valves and main electrical circuit breakers immediately.',
+      'Stay in open areas away from power transmission lines, glass facades, and brick walls.'
+    ],
+    avoidItems: [
+      'Do NOT run outside while structural shaking is actively occurring.',
+      'Do NOT use elevators, escalators, or balconies.',
+      'Avoid lighting matches or lighters until confirming zero gas line leaks.'
+    ],
+    nearestSafeZoneId: 'safezone-02',
+    officialSource: 'Institute of Seismological Research (ISR) & NDMA',
+    translations: {
+      hi: {
+        title: 'भूकंप चेतावनी: कच्छ मुख्य फॉल्ट में 5.8 तीव्रता का झटका',
+        location: 'कच्छ और सौराष्ट्र क्षेत्र (भुज, गांधीधाम और मोरबी)',
+        summary: 'कच्छ में तेज भूकंपीय झटके दर्ज किए गए। संभावित आफ्टरशॉक्स के कारण सावधानी बरतें।',
+        statusText: 'गंभीर खतरा - तुरंत झुकें, ढकें और मजबूत सहारे को पकड़ें।',
+        actions: [
+          'तुरंत जमीन पर बैठें और मजबूत टेबल के नीचे सिर ढकें।',
+          'सीढ़ियों का उपयोग करके बाहर निकलें, लिफ्ट का उपयोग न करें।',
+          'गैस और बिजली की मुख्य लाइनें बंद करें।'
+        ],
+        avoidItems: [
+          'झटकों के दौरान भागने की कोशिश न करें।',
+          'इमारतों और बिजली के तारों के पास न खड़े हों।'
+        ]
+      },
+      gu: {
+        title: 'ભૂકંપ ચેતવણી: કચ્છ મેઇનલેન્ડ ફોલ્ટમાં 5.8 ની તીવ્રતાનો આંચકો',
+        location: 'કચ્છ અને સૌરાષ્ટ્ર વિસ્તાર (ભુજ, ગાંધીધામ અને મોરબી)',
+        summary: 'કચ્છ વિસ્તારમાં ભૂકંપના તીવ્ર આંચકા અનુભવાયા. આફ્ટરશોક્સની શક્યતા.',
+        statusText: 'ગંભીર ચેતવણી - ખુલ્લા મેદાનમાં જાવ, સલામત રહો.',
+        actions: [
+          'તરત જ મજબૂત ટેબલ નીચે આશરો લો.',
+          'વીજળી અને ગેસ કનેક્શન બંધ કરો.',
+          'ઈમારતમાંથી બહાર નીકળવા માટે સીડીનો ઉપયોગ કરો.'
+        ],
+        avoidItems: [
+          'લિફ્ટનો ઉપયોગ બિલકુલ ન કરવો.',
+          'ધ્રુજારી દરમિયાન દોડાદોડી ન કરવી.'
+        ]
+      },
+      te: {
+        title: 'భూకంప హెచ్చరిక: కచ్ ప్రాంతంలో 5.8 తీవ్రతతో భూకంపం',
+        location: 'కచ్ మరియు సౌరాష్ట్ర ప్రాంతం (భుజ్, మోర్బి)',
+        summary: 'కచ్ ఫాల్ట్ లైన్ వెంట తీవ్ర ప్రకంపనలు నమోదయ్యాయి. అప్రమత్తంగా ఉండండి.',
+        statusText: 'తీవ్ర ప్రమాదం - తక్షణ రక్షణ చర్యలు పాటించండి.',
+        actions: [
+          'కిందకు వంగి గట్టి బల్ల కింద తలను దాచుకోండి.',
+          'మెట్లను మాత్రమే ఉపయోగించండి, లిఫ్ట్‌లు వాడవద్దు.',
+          'గ్యాస్ మరియు విద్యుత్ స్విచ్‌లు ఆపివేయండి.'
+        ],
+        avoidItems: [
+          'ప్రకంపనలు జరుగుతున్నప్పుడు పరుగులు తీయవద్దు.'
+        ]
+      }
+    }
+  },
+  {
+    id: 'alert-landslide-05',
+    disasterType: 'Landslide',
+    severity: 'HIGH_RISK',
+    riskColor: 'orange',
+    title: 'LANDSLIDE WARNING: Slope Instability & Debris Flow along Pavagadh Foothills',
+    location: 'Panchmahal & Pavagadh Hill Corridor',
+    issuedAt: '1 hour ago',
+    timestamp: '2026-08-08T13:50:00Z',
+    summary: 'Continuous heavy monsoon downpours have triggered mudslides, rockfalls, and road blockages along the access ghat roads and surrounding hillside settlements.',
+    affectedRadius: '12 km along hill highway corridor',
+    statusText: 'High Risk Alert - Hillside transit halted. Evacuate valley drainage settlements.',
+    actions: [
+      'Evacuate immediately from hillside homes and drainage ravines to designated shelters.',
+      'Avoid all vehicular travel on ghat roads and mountain passes until cleared by authorities.',
+      'Listen for unusual rumbling sounds, rolling boulders, or sudden surges in mudflow streams.',
+      'Report active slope cracking or blocked culverts to the District Emergency Operations Center.'
+    ],
+    avoidItems: [
+      'Do NOT attempt to cross active mudflows or debris-laden roads on foot or in vehicles.',
+      'Do NOT shelter in narrow valley bottoms or below steep, unreinforced slopes.',
+      'Avoid approaching loose embankments or swollen hillside mountain streams.'
+    ],
+    nearestSafeZoneId: 'safezone-05',
+    officialSource: 'Geological Survey of India (GSI) & GSDMA',
+    translations: {
+      hi: {
+        title: 'भूस्खलन चेतावनी: पावागढ़ की तलहटी में ढलान अस्थिरता और मलबे का बहाव',
+        location: 'पंचमहल और पावागढ़ पहाड़ी गलियारा',
+        summary: 'भारी बारिश के कारण पहाड़ी मार्गों पर भूस्खलन और चट्टानें गिरने का खतरा उत्पन्न हो गया है।',
+        statusText: 'उच्च जोखिम अलर्ट - पहाड़ी ढलानों से तुरंत सुरक्षित स्थानों पर जाएं।',
+        actions: [
+          'ढलान वाले मकानों से तुरंत सुरक्षित आश्रय में जाएं।',
+          'घाट मार्गों पर यात्रा करने से बचें।'
+        ],
+        avoidItems: [
+          'बहते मलबे के बीच से न निकलें।'
+        ]
+      },
+      gu: {
+        title: 'ભૂસ્ખલન ચેતવણી: પાવાગઢ ડુંગર વિસ્તારમાં ભેખડો ધસી પડવાની શક્યતા',
+        location: 'પંચમહાલ અને પાવાગઢ પંથક',
+        summary: 'ભારે વરસાદથી ઘાટ માર્ગો પર માટી અને પથ્થરો ધસી પડતા રસ્તા બંધ થવાનો ખતરો.',
+        statusText: 'ઉચ્ચ જોખમ - ડુંગરાળ વિસ્તારોમાંથી તાત્કાલિક સ્થળાંતર કરો.',
+        actions: [
+          'નીચાણવાળા અને ઢોળાવવાળા વિસ્તારોમાંથી બહાર નીકળો.',
+          'ઘાટ રોડ પર વાહન ચલાવવાનું ટાળો.'
+        ],
+        avoidItems: [
+          'ધસી પડેલા કાટમાળ વચ્ચેથી પસાર ન થવું.'
+        ]
+      },
+      te: {
+        title: 'కొండచరియల హెచ్చరిక: పావాగఢ్ పరిసరాల్లో కొండచరియలు విరిగిపడే ప్రమాదం',
+        location: 'పంచమహల్ మరియు పావాగఢ్ ప్రాంతం',
+        summary: 'భారీ వర్షాల కారణంగా ఘాట్ రోడ్లపై మట్టిచరియలు విరిగిపడే అవకాశం ఉంది.',
+        statusText: 'అధిక ప్రమాదం - లోయ ప్రాంతాల నుంచి సురక్షిత ప్రాంతాలకు వెళ్లండి.',
+        actions: [
+          'వాలు ప్రాంతాల నుండి వెంటనే సురక్షిత కేంద్రాలకు వెళ్లండి.'
+        ],
+        avoidItems: [
+          'మట్టి ప్రవాహాలలో వాహనాలు నడపవద్దు.'
+        ]
+      }
+    }
+  },
+  {
+    id: 'alert-fire-06',
+    disasterType: 'Fire',
+    severity: 'HIGH_RISK',
+    riskColor: 'orange',
+    title: 'STRUCTURAL FIRE: Major Industrial Chemical Fire with Dense Smoke Plume',
+    location: 'Ahmedabad (Vatva & Naroda Industrial Zones)',
+    issuedAt: '35 min ago',
+    timestamp: '2026-08-08T14:30:00Z',
+    summary: 'Major structural fire with thick chemical smoke dispersion in GIDC Phase-IV. Multi-agency fire tenders and hazmat containment units actively deployed.',
+    affectedRadius: '2.5 km downwind radius',
+    statusText: 'High Risk Hazard - Seal doors/windows and wear masks downwind.',
+    actions: [
+      'Stay indoors, close all exterior windows, ventilation ducts, and shut down AC intake vents.',
+      'Wear damp cloth or N95 masks to prevent toxic particulate and chemical smoke inhalation.',
+      'Keep primary exit pathways clear and follow evacuation corridors established by police.',
+      'Cooperate with fire rescue teams and maintain unobstructed access for emergency vehicles.'
+    ],
+    avoidItems: [
+      'Do NOT gather near the incident perimeter or obstruct emergency fire tenders.',
+      'Do NOT inhale dense smoke plumes or enter downwind industrial corridors.',
+      'Avoid using domestic water pumps if chemical runoff has entered local storm drains.'
+    ],
+    nearestSafeZoneId: 'safezone-03',
+    officialSource: 'Ahmedabad Fire & Emergency Services (AFES) & State Police',
+    translations: {
+      hi: {
+        title: 'अग्नि चेतावनी: औद्योगिक क्षेत्र में भीषण रासायनिक आग',
+        location: 'अहमदाबाद (वत्वा और नरोडा औद्योगिक क्षेत्र)',
+        summary: 'जीआईडीसी में रासायनिक आग के कारण घना धुआं फैल रहा है। खिड़कियां बंद रखें।',
+        statusText: 'उच्च जोखिम - मास्क पहनें और धुएं से दूर रहें।',
+        actions: [
+          'खिड़कियां और वेंटिलेशन बंद रखें।',
+          'गीला कपड़ा या एन95 मास्क पहनें।'
+        ],
+        avoidItems: [
+          'घटना स्थल के पास भीड़ न लगाएं।'
+        ]
+      },
+      gu: {
+        title: 'આગની ચેતવણી: વટવા જીઆઇડીસીમાં કેમિકલ ફેક્ટરીમાં ભીષણ આગ',
+        location: 'અમદાવાદ (વટવા અને નરોડા જીઆઇડીસી)',
+        summary: 'ઝેરી ધુમાડો ફેલાવવાની શક્યતા હોવાથી આસપાસના રહેવાસીઓએ ઘરોની બારીઓ બંધ રાખવી.',
+        statusText: 'ઉચ્ચ જોખમ - માસ્ક પહેરો અને સુરક્ષિત રહો.',
+        actions: [
+          'ઘરની બારી-બારણાં બંધ રાખો.',
+          'ભીનો રૂમાલ અથવા માસ્કનો ઉપયોગ કરો.'
+        ],
+        avoidItems: [
+          'ઘટનાસ્થળે ભીડ ન કરવી.'
+        ]
+      },
+      te: {
+        title: 'అగ్నిప్రమాద హెచ్చరిక: పారిశ్రామిక వాడలో భారీ అగ్నిప్రమాదం',
+        location: 'అహ్మదాబాద్ (వత్వా ఇండస్ట్రియల్ ఏరియా)',
+        summary: 'రసాయన పొగ వ్యాపిస్తున్నందున ప్రజలు తగిన జాగ్రత్తలు తీసుకోవాలి.',
+        statusText: 'అధిక ప్రమాదం - మాస్కులు ధరించండి.',
+        actions: [
+          'ఇంటి కిటికీలు మూసివేయండి, మాస్కులు ధరించండి.'
+        ],
+        avoidItems: [
+          'ప్రమాద ప్రాంతం వద్ద గుమిగూడవద్దు.'
         ]
       }
     }

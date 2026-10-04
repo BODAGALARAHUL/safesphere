@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { SafeZone } from '@/data/safeZonesData';
+import type { SafeZone } from '@/types';
 import { MapPin, Navigation, Phone, Home, Hospital, Shield, Flame } from 'lucide-react';
 
 interface SafeZoneBottomSheetProps {
@@ -73,8 +73,18 @@ export const SafeZoneBottomSheet: React.FC<SafeZoneBottomSheetProps> = ({
         return (
           <div
             key={zone.id}
+            role="button"
+            tabIndex={0}
+            aria-pressed={isSelected}
+            aria-label={`${zone.name}, ${zone.area}, ${zone.distanceKm} km away`}
             onClick={() => onSelectZone(zone)}
-            className={`cursor-pointer rounded-2xl border p-4 sm:p-5 transition-all space-y-3 shadow-sm ${
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelectZone(zone);
+              }
+            }}
+            className={`cursor-pointer rounded-2xl border p-4 sm:p-5 transition-all space-y-3 shadow-sm focus-command ${
               isSelected
                 ? 'border-[#38a8ff] bg-[#151c26] shadow-xl ring-1 ring-[#38a8ff]'
                 : 'border-[rgba(255,255,255,0.06)] bg-[#0d121a] hover:bg-[#151c26] hover:border-[rgba(255,255,255,0.15)]'

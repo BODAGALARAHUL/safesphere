@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useDisaster } from '@/context/DisasterContext';
-import { PREPAREDNESS_ITEMS, getLocalizedPrepItem } from '@/data/preparednessData';
+import { PreparednessService } from '@/services';
+import { getLocalizedPrepItem } from '@/data/preparednessData';
 import { animatePageEnter, createScrollCounter, createScrollProgress, createStaggerReveal } from '@/lib/animations';
 import {
   CheckCircle2,
@@ -31,6 +32,8 @@ export default function PreparednessPage() {
   const scoreCounterRef = useRef<HTMLSpanElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const checklistGridRef = useRef<HTMLDivElement>(null);
+
+  const preparednessItems = PreparednessService.getPreparednessItems();
 
   useEffect(() => {
     if (containerRef.current) {
@@ -70,7 +73,7 @@ export default function PreparednessPage() {
     }
   };
 
-  const categories = ['Water & Food', 'Medical & Safety', 'Tools & Light', 'Documents & Cash'] as const;
+  const categories = PreparednessService.getCategories();
 
   return (
     <main ref={containerRef} className="atmosphere-preparedness w-full min-h-screen py-6 sm:py-8">
@@ -139,7 +142,7 @@ export default function PreparednessPage() {
       
       <div ref={checklistGridRef} className="space-y-6">
         {categories.map(category => {
-          const categoryItems = PREPAREDNESS_ITEMS.filter(item => item.category === category);
+          const categoryItems = preparednessItems.filter(item => item.category === category);
           if (categoryItems.length === 0) return null;
 
           return (
@@ -157,8 +160,18 @@ export default function PreparednessPage() {
                   return (
                     <div
                       key={item.id}
+                      role="checkbox"
+                      aria-checked={isChecked}
+                      tabIndex={0}
+                      aria-label={`${item.title} - ${item.category}. ${isChecked ? 'Packed' : 'Not packed'}`}
                       onClick={() => togglePrepItem(item.id)}
-                      className={`checklist-item-card cursor-pointer flex items-start gap-3.5 p-4 rounded-2xl border transition-all select-none shadow-sm hover:scale-[1.01] ${
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          togglePrepItem(item.id);
+                        }
+                      }}
+                      className={`checklist-item-card cursor-pointer flex items-start gap-3.5 p-4 rounded-2xl border transition-all select-none shadow-sm hover:scale-[1.01] focus-command min-h-[56px] ${
                         isChecked
                           ? 'border-[rgba(22,199,132,0.4)] bg-[#0d121a] ring-1 ring-[#16c784]'
                           : 'border-[rgba(255,255,255,0.06)] bg-[#0d121a] hover:bg-[#151c26] hover:border-[rgba(255,255,255,0.15)]'

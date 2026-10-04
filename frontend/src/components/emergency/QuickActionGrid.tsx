@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useDisaster } from '@/context/DisasterContext';
+import { SafeZoneService } from '@/services';
 import { createStaggerReveal } from '@/lib/animations';
 import {
   Navigation,
@@ -13,8 +14,10 @@ import {
 } from 'lucide-react';
 
 export const QuickActionGrid: React.FC = () => {
-  const { setIsAssistanceModalOpen, activeAlert } = useDisaster();
+  const { setIsAssistanceModalOpen, activeAlert, userLocation, selectedLocation } = useDisaster();
   const gridRef = useRef<HTMLDivElement>(null);
+
+  const nearestShelter = SafeZoneService.getNearestSafeZone(userLocation.coordinates, selectedLocation);
 
   useEffect(() => {
     if (gridRef.current) {
@@ -25,22 +28,22 @@ export const QuickActionGrid: React.FC = () => {
   return (
     <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       
-      
+      {/* 1. Safe Havens */}
       <Link
         href="/safe-zones"
-        className="quick-action-tile group relative overflow-hidden flex flex-col justify-between p-5 rounded-2xl bg-[#0d121a] hover:bg-[#151c26] border border-[rgba(56,168,255,0.25)] hover:border-[#38a8ff] transition-all shadow-md"
+        className="quick-action-tile group relative overflow-hidden flex flex-col justify-between p-5 rounded-2xl bg-[#0d121a] hover:bg-[#151c26] border border-[#22d3ee]/30 hover:border-[#22d3ee] transition-all shadow-md"
       >
         <div className="flex items-start justify-between">
-          <div className="p-3 rounded-xl bg-[rgba(56,168,255,0.12)] text-[#38a8ff] border border-[rgba(56,168,255,0.25)]">
+          <div className="p-3 rounded-xl bg-[#22d3ee]/10 text-[#22d3ee] border border-[#22d3ee]/25">
             <Navigation className="h-6 w-6" />
           </div>
-          <span className="font-mono text-xs font-black px-2.5 py-1 rounded-md bg-[rgba(56,168,255,0.15)] text-[#38a8ff]">
-            1.2 KM AWAY
+          <span className="font-mono text-xs font-black px-2.5 py-1 rounded-md bg-[#22d3ee]/15 text-[#22d3ee]">
+            {nearestShelter ? `~${nearestShelter.distanceKm} KM` : 'NEARBY'}
           </span>
         </div>
         <div className="mt-4 space-y-1">
-          <div className="text-[10px] font-bold text-[#38a8ff] uppercase tracking-wider font-mono">Geospatial Havens</div>
-          <h3 className="font-black text-base text-white group-hover:text-[#38a8ff] transition-colors flex items-center justify-between">
+          <div className="text-[10px] font-bold text-[#22d3ee] uppercase tracking-wider font-mono">Geospatial Havens</div>
+          <h3 className="font-black text-base text-white group-hover:text-[#22d3ee] transition-colors flex items-center justify-between">
             <span>Find Safe Shelter</span>
             <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
           </h3>
@@ -121,7 +124,7 @@ export const QuickActionGrid: React.FC = () => {
             <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
           </h3>
           <p className="text-xs text-[#94a3b8] leading-relaxed">
-            Verified step-by-step actions for active flood hazard.
+            Verified step-by-step actions for active {activeAlert.disasterType.toLowerCase()} hazard.
           </p>
         </div>
       </Link>

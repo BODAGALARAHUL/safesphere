@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MOCK_DISASTER_ALERTS } from '@/data/disastersData';
 import { AlertCard } from '@/components/AlertCard';
 import { useDisaster } from '@/context/DisasterContext';
+import { AlertService } from '@/services';
 import {
   animatePageEnter,
   createScrollCounter,
@@ -21,11 +21,13 @@ export default function AlertsPage() {
 
   const [selectedSeverity, setSelectedSeverity] = useState<string>('ALL');
   const [selectedType, setSelectedType] = useState<string>('ALL');
+  const [selectedArea, setSelectedArea] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const criticalCount = MOCK_DISASTER_ALERTS.filter(a => a.severity === 'CRITICAL').length;
-  const highCount = MOCK_DISASTER_ALERTS.filter(a => a.severity === 'HIGH_RISK').length;
-  const moderateCount = MOCK_DISASTER_ALERTS.filter(a => a.severity === 'MODERATE').length;
+  const allAlerts = AlertService.getAlerts();
+  const criticalCount = allAlerts.filter(a => a.severity === 'CRITICAL').length;
+  const highCount = allAlerts.filter(a => a.severity === 'HIGH_RISK').length;
+  const moderateCount = allAlerts.filter(a => a.severity === 'MODERATE').length;
 
   useEffect(() => {
     animatePageEnter(containerRef.current);
@@ -38,7 +40,7 @@ export default function AlertsPage() {
     if (feedContainerRef.current) {
       createStaggerReveal(feedContainerRef.current, '.alert-feed-item', { stagger: 0.08, yOffset: 20 });
     }
-  }, [selectedSeverity, selectedType, searchQuery]);
+  }, [selectedSeverity, selectedType, selectedArea, searchQuery]);
 
   const severityTabs = [
     { id: 'ALL', label: 'All Severities' },
@@ -47,17 +49,13 @@ export default function AlertsPage() {
     { id: 'MODERATE', label: 'Moderate' },
   ];
 
-  const disasterTypes = ['ALL', 'Flood', 'Cyclone', 'Earthquake', 'Fire', 'Heatwave'];
+  const disasterTypes = ['ALL', 'Flood', 'Cyclone', 'Earthquake', 'Landslide', 'Fire', 'Heatwave'];
 
-  const filteredAlerts = MOCK_DISASTER_ALERTS.filter(alert => {
-    const matchesSeverity = selectedSeverity === 'ALL' || alert.severity === selectedSeverity;
-    const matchesType = selectedType === 'ALL' || alert.disasterType === selectedType;
-    const matchesSearch =
-      alert.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      alert.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      alert.disasterType.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesSeverity && matchesType && matchesSearch;
+  const filteredAlerts = AlertService.filterAlerts(allAlerts, {
+    severity: selectedSeverity,
+    disasterType: selectedType,
+    searchQuery,
+    area: selectedArea,
   });
 
   return (
@@ -157,21 +155,50 @@ export default function AlertsPage() {
           
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar w-full min-w-0">
             <span className="text-xs font-semibold text-[#64748b] mr-1 flex items-center gap-1 shrink-0 font-mono">
-              <Layers className="h-3.5 w-3.5" /> Hazard:
+              <Layers className="h-3.5 w-3.5 text-[#22d3ee]" /> Hazard:
             </span>
             <div className="flex items-center gap-1.5 shrink-0">
-              {disasterTypes.map(t => (
+              {disasterTypes.map(type => (
                 <button
-                  key={t}
+                  key={type}
                   type="button"
-                  onClick={() => setSelectedType(t)}
+                  onClick={() => setSelectedType(type)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                    selectedType === t
-                      ? 'bg-[#38a8ff] text-white shadow-md'
+                    selectedType === type
+                      ? 'bg-[#22d3ee] text-[#071018] font-black shadow-md'
                       : 'bg-[#06080d] text-[#94a3b8] hover:text-white border border-[rgba(255,255,255,0.04)]'
                   }`}
                 >
-                  {t}
+                  {type === 'ALL' ? 'All Hazards' : type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar w-full min-w-0">
+            <span className="text-xs font-semibold text-[#64748b] mr-1 flex items-center gap-1 shrink-0 font-mono">
+              <MapPin className="h-3.5 w-3.5 text-[#10b981]" /> Region:
+            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {[
+                { id: 'ALL', label: 'All Gujarat' },
+                { id: 'Ahmedabad', label: 'Ahmedabad' },
+                { id: 'Kutch', label: 'Kutch / Saurashtra' },
+                { id: 'Panchmahal', label: 'Panchmahal' },
+                { id: 'Vadodara', label: 'Central Gujarat' },
+              ].map(area => (
+                <button
+                  key={area.id}
+                  type="button"
+                  onClick={() => setSelectedArea(area.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                    selectedArea === area.id
+                      ? 'bg-[#10b981] text-[#071018] font-black shadow-md'
+                      : 'bg-[#06080d] text-[#94a3b8] hover:text-white border border-[rgba(255,255,255,0.04)]'
+                  }`}
+                >
+                  {area.label}
                 </button>
               ))}
             </div>

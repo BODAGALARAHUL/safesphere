@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useDisaster } from '@/context/DisasterContext';
-import { MOCK_DISASTER_ALERTS, getLocalizedAlert } from '@/data/disastersData';
+import { AlertService } from '@/services';
+import { getLocalizedAlert } from '@/data/disastersData';
 import { SeverityBadge } from '@/components/SeverityBadge';
 import {
   X,
@@ -28,21 +29,40 @@ export const NotificationCenter: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'BROADCASTS' | 'ASSISTANCE'>('BROADCASTS');
 
+  // Escape key to close drawer
+  useEffect(() => {
+    if (!isNotificationDrawerOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsNotificationDrawerOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isNotificationDrawerOpen, setIsNotificationDrawerOpen]);
+
   if (!isNotificationDrawerOpen) return null;
 
+  const alerts = AlertService.getAlerts();
+
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex justify-end bg-black/85 backdrop-blur-sm animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="feed-drawer-title"
+    >
       
-      
+      {/* Overlay Backdrop */}
       <div
         className="absolute inset-0"
         onClick={() => setIsNotificationDrawerOpen(false)}
       />
 
-      
+      {/* Drawer Body */}
       <div className="relative w-full max-w-md bg-[#10151d] border-l border-[rgba(255,255,255,0.08)] h-full flex flex-col shadow-2xl z-10 animate-in slide-in-from-right duration-300 text-[#f8fafc]">
         
-        
+        {/* Header */}
         <div className="p-5 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between bg-[#070a0f]">
           <div className="flex items-center gap-2.5">
             <div className="relative p-2.5 rounded-xl bg-[#18212d] border border-[rgba(255,255,255,0.08)] text-white">
@@ -55,7 +75,7 @@ export const NotificationCenter: React.FC = () => {
               )}
             </div>
             <div>
-              <h2 className="font-bold text-base text-[#f8fafc] leading-tight">
+              <h2 id="feed-drawer-title" className="font-bold text-base text-[#f8fafc] leading-tight">
                 Emergency Activity Feed
               </h2>
               <span className="text-xs text-[#718096]">
@@ -85,7 +105,7 @@ export const NotificationCenter: React.FC = () => {
                 : 'text-[#718096] hover:text-white'
             }`}
           >
-            Broadcasts ({MOCK_DISASTER_ALERTS.length})
+            Broadcasts ({alerts.length})
           </button>
           <button
             type="button"
@@ -103,7 +123,7 @@ export const NotificationCenter: React.FC = () => {
         
         <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
           {activeTab === 'BROADCASTS' ? (
-            MOCK_DISASTER_ALERTS.map(alert => {
+            alerts.map(alert => {
               const localized = getLocalizedAlert(alert, currentLanguage);
               return (
                 <div

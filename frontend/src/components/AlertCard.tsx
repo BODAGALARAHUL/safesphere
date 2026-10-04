@@ -2,42 +2,21 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { DisasterAlert, getLocalizedAlert } from '@/data/disastersData';
+import type { DisasterAlert } from '@/types';
+import { getLocalizedAlert } from '@/data/disastersData';
 import { SeverityBadge } from '@/components/SeverityBadge';
+import { DisasterIcon } from '@/components/shared';
 import { useDisaster } from '@/context/DisasterContext';
 import {
   MapPin,
   Clock,
   ArrowRight,
-  Waves,
-  Wind,
-  Activity,
-  Flame,
-  Sun,
-  ShieldAlert,
   FileText
 } from 'lucide-react';
 
 interface AlertCardProps {
   alert: DisasterAlert;
   isCompact?: boolean;
-}
-
-function renderDisasterIcon(disasterType: string) {
-  switch (disasterType) {
-    case 'Flood':
-      return <Waves className="h-5 w-5 text-white" />;
-    case 'Cyclone':
-      return <Wind className="h-5 w-5 text-white" />;
-    case 'Earthquake':
-      return <Activity className="h-5 w-5 text-white" />;
-    case 'Fire':
-      return <Flame className="h-5 w-5 text-white" />;
-    case 'Heatwave':
-      return <Sun className="h-5 w-5 text-white" />;
-    default:
-      return <ShieldAlert className="h-5 w-5 text-white" />;
-  }
 }
 
 export const AlertCard: React.FC<AlertCardProps> = ({ alert, isCompact = false }) => {
@@ -83,8 +62,8 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, isCompact = false }
 
       
       <div className="flex items-start gap-3.5">
-        <div className="p-3 rounded-xl bg-[#151c26] border border-[rgba(255,255,255,0.08)] text-white shrink-0 mt-0.5">
-          {renderDisasterIcon(localizedAlert.disasterType)}
+        <div className="p-3 rounded-xl bg-[#151c26] border border-[#243646] text-white shrink-0 mt-0.5">
+          <DisasterIcon type={localizedAlert.disasterType} className="h-5 w-5 text-white" />
         </div>
         <div className="space-y-1 min-w-0 flex-1">
           <h3 className="text-base sm:text-lg font-black text-white leading-snug">

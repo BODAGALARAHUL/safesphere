@@ -2,27 +2,12 @@
 
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { DISASTER_GUIDES, getLocalizedGuidance } from '@/data/guidanceData';
+import { GuidanceService } from '@/services';
+import { getLocalizedGuidance } from '@/data/guidanceData';
 import { useDisaster } from '@/context/DisasterContext';
-import { BookOpen, Waves, Wind, Activity, Flame, ArrowRight, CheckSquare, Sun } from 'lucide-react';
+import { DisasterIcon } from '@/components/shared';
+import { BookOpen, ArrowRight, CheckSquare } from 'lucide-react';
 import { animatePageEnter, createStaggerReveal } from '@/lib/animations';
-
-function renderHubIcon(disasterType: string) {
-  switch (disasterType) {
-    case 'Flood':
-      return <Waves className="h-6 w-6 text-white" />;
-    case 'Cyclone':
-      return <Wind className="h-6 w-6 text-white" />;
-    case 'Earthquake':
-      return <Activity className="h-6 w-6 text-white" />;
-    case 'Fire':
-      return <Flame className="h-6 w-6 text-white" />;
-    case 'Heatwave':
-      return <Sun className="h-6 w-6 text-white" />;
-    default:
-      return <BookOpen className="h-6 w-6 text-white" />;
-  }
-}
 
 export default function GuidancePage() {
   const { currentLanguage } = useDisaster();
@@ -46,12 +31,16 @@ export default function GuidancePage() {
         return { border: 'border-[rgba(255,138,31,0.3)]', badge: 'text-[#ff8a1f] bg-[rgba(255,138,31,0.12)]' };
       case 'Earthquake':
         return { border: 'border-[rgba(245,197,66,0.3)]', badge: 'text-[#f5c542] bg-[rgba(245,197,66,0.12)]' };
+      case 'Landslide':
+        return { border: 'border-[rgba(234,179,8,0.3)]', badge: 'text-[#eab308] bg-[rgba(234,179,8,0.12)]' };
       case 'Fire':
         return { border: 'border-[rgba(255,48,79,0.3)]', badge: 'text-[#ff304f] bg-[rgba(255,48,79,0.12)]' };
       default:
         return { border: 'border-[rgba(22,199,132,0.3)]', badge: 'text-[#16c784] bg-[rgba(22,199,132,0.12)]' };
     }
   };
+
+  const guides = GuidanceService.getDisasterGuides();
 
   return (
     <main ref={containerRef} className="atmosphere-guides w-full min-h-screen py-6 sm:py-8">
@@ -73,7 +62,7 @@ export default function GuidancePage() {
 
       
       <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {DISASTER_GUIDES.map((rawGuide) => {
+        {guides.map((rawGuide) => {
           const guide = getLocalizedGuidance(rawGuide, currentLanguage);
           const accent = getDisasterAccent(guide.disasterType);
 
@@ -86,7 +75,7 @@ export default function GuidancePage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="p-3 rounded-xl bg-[#162532] border border-[#243646] text-white shadow-sm">
-                    {renderHubIcon(guide.disasterType)}
+                    <DisasterIcon type={guide.disasterType} className="h-6 w-6 text-white" />
                   </div>
                   <span className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-bold border border-transparent ${accent.badge}`}>
                     {guide.severityRisk}

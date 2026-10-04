@@ -1,13 +1,6 @@
-export interface EmergencyContact {
-  id: string;
-  number: string;
-  title: string;
-  subtitle: string;
-  type: 'national' | 'medical' | 'fire' | 'police' | 'helpline';
-  primary: boolean;
-  description: string;
-  iconName: string;
-}
+import type { EmergencyContact, EmergencyContactType } from '@/types';
+
+export type { EmergencyContact, EmergencyContactType };
 
 export const EMERGENCY_CONTACTS: EmergencyContact[] = [
   {

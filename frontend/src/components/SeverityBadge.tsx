@@ -1,5 +1,4 @@
-import React from 'react';
-import { SeverityLevel } from '@/data/disastersData';
+import type { SeverityLevel } from '@/types';
 import { AlertTriangle, AlertOctagon, Info, ShieldCheck } from 'lucide-react';
 
 interface SeverityBadgeProps {

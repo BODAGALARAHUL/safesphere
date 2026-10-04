@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { useDisaster } from '@/context/DisasterContext';
+import { BrandLogo } from '@/components/shared';
 import { 
   Radio, 
   ArrowUpRight, 
@@ -20,7 +20,7 @@ export const AppFooter: React.FC = () => {
   return (
     <footer className="hidden md:block w-full bg-[#04080c] border-t border-[#243646] text-[#b3c2d0] mt-auto">
       
-      
+      {/* Telemetry Status Bar */}
       <div className="border-b border-[#243646]/60 bg-[#071018]/80 py-3">
         <div className="page-shell flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
           <div className="flex items-center gap-4">
@@ -55,21 +55,13 @@ export const AppFooter: React.FC = () => {
         </div>
       </div>
 
-      
+      {/* Main Footer Directory */}
       <div className="page-shell py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
-          
+          {/* Brand Column */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/safesphere-logo.png"
-                alt="SafeSphere - Public Safety Intelligence Platform"
-                width={886}
-                height={248}
-                className="h-10 sm:h-11 w-auto max-w-[220px] object-contain select-none"
-              />
-            </div>
+            <BrandLogo variant="full" href="/" />
             <p className="text-xs text-[#71879a] leading-relaxed">
               Real-time civic disaster intelligence system delivering automated hydrological flood perimeter warnings, 
               geospatial safe haven routing, and verified multi-hazard survival protocols.

@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { SafeZone } from '@/data/safeZonesData';
+import type { SafeZone } from '@/types';
 
 const createCustomIcon = (type: SafeZone['type'], status?: string) => {
   let color = '#10b981'; 
@@ -55,13 +55,22 @@ interface SafeZoneMapInnerProps {
   safeZones: SafeZone[];
   selectedZone?: SafeZone;
   onSelectZone: (zone: SafeZone) => void;
+  userCoords?: { latitude: number; longitude: number };
+  userLocationLabel?: string;
 }
 
-export default function SafeZoneMapInner({ safeZones, selectedZone, onSelectZone }: SafeZoneMapInnerProps) {
+export default function SafeZoneMapInner({
+  safeZones,
+  selectedZone,
+  onSelectZone,
+  userCoords = { latitude: 23.0125, longitude: 72.5642 },
+  userLocationLabel = 'Ahmedabad · Paldi'
+}: SafeZoneMapInnerProps) {
   
-  const userLocation = { lat: 23.0125, lng: 72.5642 };
-  const centerLat = selectedZone ? selectedZone.lat : userLocation.lat;
-  const centerLng = selectedZone ? selectedZone.lng : userLocation.lng;
+  const userLat = userCoords.latitude;
+  const userLng = userCoords.longitude;
+  const centerLat = selectedZone ? selectedZone.lat : userLat;
+  const centerLng = selectedZone ? selectedZone.lng : userLng;
 
   return (
     <div className="h-full w-full min-h-0 relative">
@@ -80,9 +89,9 @@ export default function SafeZoneMapInner({ safeZones, selectedZone, onSelectZone
       <RecenterMap lat={centerLat} lng={centerLng} />
 
       
-      <Marker position={[userLocation.lat, userLocation.lng]} icon={UserIcon}>
+      <Marker position={[userLat, userLng]} icon={UserIcon}>
         <Popup>
-          <div className="font-bold text-xs text-[#070a0f]">Your Location: Ahmedabad · Paldi</div>
+          <div className="font-bold text-xs text-[#070a0f]">Your Location: {userLocationLabel}</div>
         </Popup>
       </Marker>
 

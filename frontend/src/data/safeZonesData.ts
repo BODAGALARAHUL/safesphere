@@ -1,21 +1,6 @@
-export type SafeZoneType = 'Shelter' | 'Hospital' | 'Police' | 'Fire';
+import type { SafeZone, SafeZoneType, SafeZoneStatus } from '@/types';
 
-export interface SafeZone {
-  id: string;
-  name: string;
-  type: SafeZoneType;
-  distanceKm: number;
-  lat: number;
-  lng: number;
-  address: string;
-  area: string;
-  status: 'Open · Available' | 'Open · High Demand' | 'Full · Restricted';
-  capacityBeds: string;
-  facilities: string[];
-  contactNumber: string;
-  operatingHours: string;
-  googleMapsUrl: string;
-}
+export type { SafeZone, SafeZoneType, SafeZoneStatus };
 
 export const MOCK_SAFE_ZONES: SafeZone[] = [
   {
@@ -97,5 +82,117 @@ export const MOCK_SAFE_ZONES: SafeZone[] = [
     contactNumber: '+91 79 2686 1122',
     operatingHours: '24x7 Evacuation Relief',
     googleMapsUrl: 'https://maps.google.com/?q=23.0298,72.5270'
+  },
+  {
+    id: 'safezone-06',
+    name: 'Sayajigunj Civic Disaster Center & Shelter',
+    type: 'Shelter',
+    distanceKm: 1.5,
+    lat: 22.3072,
+    lng: 73.1812,
+    address: 'Near Vadodara Railway Station, Sayajigunj',
+    area: 'Vadodara · Central',
+    status: 'Open · Available',
+    capacityBeds: '180 / 250 beds available',
+    facilities: ['Backup Power', 'Clean Water', 'First Aid Station', 'Food Distribution'],
+    contactNumber: '+91 265 2433 111',
+    operatingHours: '24x7 Emergency Operations',
+    googleMapsUrl: 'https://maps.google.com/?q=22.3072,73.1812'
+  },
+  {
+    id: 'safezone-07',
+    name: 'SSG Government Hospital & Trauma Center',
+    type: 'Hospital',
+    distanceKm: 2.1,
+    lat: 22.3005,
+    lng: 73.1920,
+    address: 'Jail Road, Anandpura',
+    area: 'Vadodara · Central',
+    status: 'Open · Available',
+    capacityBeds: '45 ICU / 200 Emergency beds open',
+    facilities: ['Trauma Center', 'Blood Bank', 'Emergency Ward', 'Ambulance Dispatch'],
+    contactNumber: '+91 265 2424 848',
+    operatingHours: '24x7 Emergency Trauma',
+    googleMapsUrl: 'https://maps.google.com/?q=22.3005,73.1920'
+  },
+  {
+    id: 'safezone-08',
+    name: 'Athwa Lines Municipal Multi-Purpose Cyclone Shelter',
+    type: 'Shelter',
+    distanceKm: 1.8,
+    lat: 21.1702,
+    lng: 72.8311,
+    address: 'Ring Road, Athwa Lines',
+    area: 'Surat · Athwa',
+    status: 'Open · Available',
+    capacityBeds: '350 / 500 beds available',
+    facilities: ['Reinforced Concrete Dome', 'Backup Generators', 'Medical Clinic', 'Ration Store'],
+    contactNumber: '+91 261 2422 222',
+    operatingHours: '24x7 Storm Shelter Active',
+    googleMapsUrl: 'https://maps.google.com/?q=21.1702,72.8311'
+  },
+  {
+    id: 'safezone-09',
+    name: 'New Civil Hospital & Emergency Response Unit',
+    type: 'Hospital',
+    distanceKm: 3.2,
+    lat: 21.1604,
+    lng: 72.8123,
+    address: 'Majura Gate, Ring Road',
+    area: 'Surat · Athwa',
+    status: 'Open · Available',
+    capacityBeds: '60 ICU / 250 Emergency beds open',
+    facilities: ['24x7 Trauma Unit', 'Burn Ward', 'Disaster Relief Fleet', 'Oxygen Supply Hub'],
+    contactNumber: '+91 261 2244 456',
+    operatingHours: '24x7 Critical Care',
+    googleMapsUrl: 'https://maps.google.com/?q=21.1604,72.8123'
+  },
+  {
+    id: 'safezone-10',
+    name: 'Bhuj Earthquake Memorial Disaster Relief Center',
+    type: 'Shelter',
+    distanceKm: 1.4,
+    lat: 23.2420,
+    lng: 69.6669,
+    address: 'Near Jubilee Ground, Bhuj',
+    area: 'Kutch · Bhuj',
+    status: 'Open · Available',
+    capacityBeds: '400 / 600 beds available',
+    facilities: ['Seismic-Resistant Structure', 'Emergency Food Depot', 'Satellite Comms Hub', 'Water Tankers'],
+    contactNumber: '+91 2832 250 111',
+    operatingHours: '24x7 Seismic Relief Ready',
+    googleMapsUrl: 'https://maps.google.com/?q=23.2420,69.6669'
+  },
+  {
+    id: 'safezone-11',
+    name: 'GK General Civil Hospital',
+    type: 'Hospital',
+    distanceKm: 2.0,
+    lat: 23.2505,
+    lng: 69.6702,
+    address: 'Hospital Road, Lotus Colony, Bhuj',
+    area: 'Kutch · Bhuj',
+    status: 'Open · Available',
+    capacityBeds: '30 ICU / 150 Emergency beds open',
+    facilities: ['Earthquake Triage', 'Orthopedic Surgery Unit', 'Blood Bank', 'Emergency Ward'],
+    contactNumber: '+91 2832 222 222',
+    operatingHours: '24x7 Emergency Trauma Services',
+    googleMapsUrl: 'https://maps.google.com/?q=23.2505,69.6702'
+  },
+  {
+    id: 'safezone-12',
+    name: 'Pavagadh Foothills Emergency Evacuation Shelter',
+    type: 'Shelter',
+    distanceKm: 1.6,
+    lat: 22.4633,
+    lng: 73.5333,
+    address: 'Manchi Base Camp, Pavagadh',
+    area: 'Panchmahal · Pavagadh',
+    status: 'Open · Available',
+    capacityBeds: '120 / 200 beds available',
+    facilities: ['Reinforced Shelter', 'High-Angle Mountain Rescue Kit', 'First Aid Post', 'Emergency Radio Station'],
+    contactNumber: '+91 2676 245 678',
+    operatingHours: '24x7 Hillside Operations',
+    googleMapsUrl: 'https://maps.google.com/?q=22.4633,73.5333'
   }
 ];

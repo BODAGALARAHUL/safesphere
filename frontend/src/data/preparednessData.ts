@@ -1,17 +1,7 @@
 import { SupportedLanguage } from './translationsData';
+import type { PreparednessItem, PreparednessCategory } from '@/types';
 
-export interface PreparednessItem {
-  id: string;
-  category: 'Water & Food' | 'Medical & Safety' | 'Tools & Light' | 'Documents & Cash';
-  title: string;
-  description: string;
-  iconName: string;
-  defaultChecked?: boolean;
-  translations?: Partial<Record<SupportedLanguage, {
-    title?: string;
-    description?: string;
-  }>>;
-}
+export type { PreparednessItem, PreparednessCategory };
 
 export const PREPAREDNESS_ITEMS: PreparednessItem[] = [
   {

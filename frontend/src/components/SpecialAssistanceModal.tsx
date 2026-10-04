@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDisaster, SpecialAssistanceRequest } from '@/context/DisasterContext';
-import { X, HeartHandshake } from 'lucide-react';
+import { X, HeartHandshake, Info } from 'lucide-react';
 
 export const SpecialAssistanceModal: React.FC = () => {
   const { isAssistanceModalOpen, setIsAssistanceModalOpen, addAssistanceRequest, selectedLocation } = useDisaster();
@@ -13,6 +13,18 @@ export const SpecialAssistanceModal: React.FC = () => {
   const [location, setLocation] = useState(selectedLocation);
   const [details, setDetails] = useState('');
   const [priority, setPriority] = useState<SpecialAssistanceRequest['priority']>('Critical Evacuation');
+
+  // Escape key to close modal
+  useEffect(() => {
+    if (!isAssistanceModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsAssistanceModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAssistanceModalOpen, setIsAssistanceModalOpen]);
 
   if (!isAssistanceModalOpen) return null;
 
@@ -37,29 +49,35 @@ export const SpecialAssistanceModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="assistance-modal-title"
+      aria-describedby="assistance-modal-desc"
+    >
       <div className="relative w-full max-w-lg rounded-2xl bg-[#10151d] border border-[rgba(255,255,255,0.12)] p-6 sm:p-7 shadow-2xl text-[#f8fafc] overflow-hidden max-h-[90vh] overflow-y-auto">
         
-        
+        {/* Close Button */}
         <button
           type="button"
           onClick={() => setIsAssistanceModalOpen(false)}
-          className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-[#18212d] text-[#718096] hover:text-white transition-colors focus-command"
-          aria-label="Close modal"
+          className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-[#18212d] text-[#718096] hover:text-white transition-colors focus-command cursor-pointer"
+          aria-label="Close assistance modal"
         >
           <X className="h-5 w-5" />
         </button>
 
-        
+        {/* Modal Header */}
         <div className="flex items-center gap-2.5 mb-2">
           <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 shrink-0">
             <HeartHandshake className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-white tracking-tight">
+            <h2 id="assistance-modal-title" className="text-xl font-black text-white tracking-tight">
               Special Evacuation Dispatch Request
             </h2>
-            <p className="text-xs text-[#aab7c7]">
+            <p id="assistance-modal-desc" className="text-xs text-[#aab7c7]">
               Priority rescue transport for vulnerable citizens during active disaster operations.
             </p>
           </div>
@@ -168,12 +186,16 @@ export const SpecialAssistanceModal: React.FC = () => {
             </div>
           </div>
 
-          
+          <div className="p-3 rounded-xl bg-[#151c26] border border-[rgba(255,255,255,0.06)] flex items-center gap-2 text-[11px] text-[#94a3b8]">
+            <Info className="h-4 w-4 text-[#38a8ff] shrink-0" />
+            <span>Simulated Evacuation Queue: Request will be tracked in your active session feed.</span>
+          </div>
+
           <button
             type="submit"
-            className="w-full h-12 rounded-xl bg-[#38a8ff] hover:bg-[#2b8edd] text-white font-bold text-sm shadow-md transition-all active:scale-95"
+            className="w-full h-12 rounded-xl bg-[#38a8ff] hover:bg-[#2b8edd] text-white font-bold text-sm shadow-md transition-all active:scale-95 cursor-pointer"
           >
-            Transmit Request to Municipal Rescue Ops
+            Submit Evacuation Request
           </button>
         </form>
 

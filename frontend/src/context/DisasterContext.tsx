@@ -1,21 +1,20 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MOCK_DISASTER_ALERTS, DisasterAlert } from '@/data/disastersData';
-import { PREPAREDNESS_ITEMS } from '@/data/preparednessData';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import type {
+  DisasterAlert,
+  SpecialAssistanceRequest,
+  SectorOption,
+  UserLocationState,
+} from '@/types';
+import {
+  AlertService,
+  PreparednessService,
+  LocationService,
+} from '@/services';
 import { SupportedLanguage, TRANSLATIONS } from '@/data/translationsData';
 
-export interface SpecialAssistanceRequest {
-  id: string;
-  type: 'Elderly / Senior Care' | 'Wheelchair / Mobility Escort' | 'Medical Oxygen / ICU Support' | 'Infant / Maternal Care' | 'Pet Evacuation';
-  name: string;
-  phone: string;
-  location: string;
-  details: string;
-  priority: 'Critical Evacuation' | 'Medical Priority' | 'Standard Assistance';
-  status: 'Received · Rescue Dispatched' | 'Assigned to Paldi Shelter Team' | 'Evacuation Complete';
-  timestamp: string;
-}
+export type { SpecialAssistanceRequest };
 
 interface DisasterContextType {
   isThreatMode: boolean;
@@ -23,8 +22,19 @@ interface DisasterContextType {
   toggleThreatMode: () => void;
   isOffline: boolean;
   toggleOfflineMode: () => void;
+  
+  // Location & Sector Management
   selectedLocation: string;
   setSelectedLocation: (loc: string) => void;
+  selectedSector: SectorOption;
+  setSelectedSector: (sector: SectorOption) => void;
+  supportedSectors: SectorOption[];
+  userLocation: UserLocationState;
+  requestUserLocation: () => Promise<void>;
+  selectSectorById: (sectorId: string) => void;
+  clearGpsLocation: () => void;
+  hasAlertInSelectedArea: boolean;
+
   isSOSOpen: boolean;
   setIsSOSOpen: (open: boolean) => void;
   activeAlert: DisasterAlert;
@@ -53,15 +63,109 @@ interface DisasterContextType {
 const DisasterContext = createContext<DisasterContextType | undefined>(undefined);
 
 export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const supportedSectors = LocationService.getSupportedSectors();
+  const defaultSector = LocationService.getDefaultSector();
+
   const [isThreatMode, setIsThreatMode] = useState<boolean>(true);
-  const [selectedLocation, setSelectedLocation] = useState<string>('Ahmedabad · Paldi');
+  const [selectedSector, setSelectedSectorState] = useState<SectorOption>(defaultSector);
+  const [selectedLocation, setSelectedLocationState] = useState<string>(defaultSector.name);
+
+  const [userLocation, setUserLocation] = useState<UserLocationState>({
+    coordinates: defaultSector.coordinates,
+    sectorName: defaultSector.name,
+    source: 'demo',
+    permissionState: 'prompt',
+    isLoading: false,
+  });
+
   const [isSOSOpen, setIsSOSOpen] = useState<boolean>(false);
-  const [activeAlert] = useState<DisasterAlert>(MOCK_DISASTER_ALERTS[0]);
   const [selectedSafeZoneFilter, setSelectedSafeZoneFilter] = useState<string>('All');
   const [isAudioSirenPlaying, setIsAudioSirenPlaying] = useState<boolean>(false);
   const [isOffline, setIsOffline] = useState<boolean>(false);
 
-  
+  // Sector selection handler
+  const selectSectorById = useCallback((sectorId: string) => {
+    const sector = LocationService.getSectorById(sectorId);
+    if (sector) {
+      setSelectedSectorState(sector);
+      setSelectedLocationState(sector.name);
+      setUserLocation(prev => ({
+        ...prev,
+        coordinates: sector.coordinates,
+        sectorName: sector.name,
+        source: 'selected',
+        errorMessage: undefined,
+      }));
+    }
+  }, []);
+
+  const setSelectedLocation = useCallback((loc: string) => {
+    const foundSector = LocationService.getSectorByName(loc);
+    if (foundSector) {
+      selectSectorById(foundSector.id);
+    } else {
+      setSelectedLocationState(loc);
+      setUserLocation(prev => ({
+        ...prev,
+        sectorName: loc,
+        source: 'selected',
+      }));
+    }
+  }, [selectSectorById]);
+
+  const setSelectedSector = useCallback((sector: SectorOption) => {
+    selectSectorById(sector.id);
+  }, [selectSectorById]);
+
+  // Centralized browser geolocation access
+  const requestUserLocation = useCallback(async () => {
+    setUserLocation(prev => ({ ...prev, isLoading: true, errorMessage: undefined }));
+
+    try {
+      const { coordinates } = await LocationService.requestBrowserGeolocation();
+      const closest = LocationService.findClosestSector(coordinates);
+
+      setUserLocation({
+        coordinates,
+        sectorName: closest.name,
+        source: 'gps',
+        permissionState: 'granted',
+        isLoading: false,
+      });
+
+      setSelectedSectorState(closest);
+      setSelectedLocationState(`${closest.city} (Live GPS)`);
+    } catch (err: unknown) {
+      const errorObj = err as { code?: string; message?: string };
+      const permissionState = (errorObj.code as UserLocationState['permissionState']) || 'unavailable';
+
+      setUserLocation(prev => ({
+        ...prev,
+        isLoading: false,
+        permissionState,
+        errorMessage: errorObj.message || 'Location unavailable — displaying selected area',
+        source: 'selected',
+      }));
+    }
+  }, []);
+
+  const clearGpsLocation = useCallback(() => {
+    setUserLocation({
+      coordinates: selectedSector.coordinates,
+      sectorName: selectedSector.name,
+      source: 'selected',
+      permissionState: 'prompt',
+      isLoading: false,
+    });
+    setSelectedLocationState(selectedSector.name);
+  }, [selectedSector]);
+
+  // Compute active alert based on selected sector
+  const primarySectorAlert = AlertService.getPrimaryAlertForSector(selectedSector.name);
+  const activeAlert: DisasterAlert = primarySectorAlert || AlertService.getActiveAlerts()[0];
+  const hasAlertInSelectedArea = Boolean(primarySectorAlert);
+
+  // Localization
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('en');
 
   const setLanguage = (lang: SupportedLanguage) => {
@@ -69,7 +173,7 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     try {
       localStorage.setItem('safesphere_lang', lang);
     } catch {
-      
+      // ignore
     }
   };
 
@@ -78,11 +182,9 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return langDict[key] || TRANSLATIONS['en'][key] || key;
   };
 
-  
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState<boolean>(false);
   const [isAssistanceModalOpen, setIsAssistanceModalOpen] = useState<boolean>(false);
 
-  
   const [assistanceRequests, setAssistanceRequests] = useState<SpecialAssistanceRequest[]>([
     {
       id: 'req-01',
@@ -110,7 +212,7 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       try {
         localStorage.setItem('safesphere_assistance_reqs', JSON.stringify(next));
       } catch {
-        
+        // ignore
       }
       return next;
     });
@@ -118,16 +220,14 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setIsNotificationDrawerOpen(true);
   };
 
-  
   const [checkedPrepItems, setCheckedPrepItems] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
-    PREPAREDNESS_ITEMS.forEach(item => {
+    PreparednessService.getPreparednessItems().forEach(item => {
       initial[item.id] = !!item.defaultChecked;
     });
     return initial;
   });
 
-  
   useEffect(() => {
     const frameId = requestAnimationFrame(() => {
       try {
@@ -144,14 +244,13 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           setCheckedPrepItems(JSON.parse(savedPrep));
         }
       } catch {
-        
+        // ignore
       }
     });
 
     return () => cancelAnimationFrame(frameId);
   }, []);
 
-  
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
@@ -175,15 +274,18 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       try {
         localStorage.setItem('safesphere_prep_items', JSON.stringify(next));
       } catch {
-        
+        // ignore
       }
       return next;
     });
   };
 
-  const completedPrepCount = Object.values(checkedPrepItems).filter(Boolean).length;
-  const totalPrepCount = PREPAREDNESS_ITEMS.length;
-  const prepPercentage = Math.round((completedPrepCount / totalPrepCount) * 100);
+  const allPrepItems = PreparednessService.getPreparednessItems();
+  const totalPrepCount = allPrepItems.length;
+  const completedPrepCount = allPrepItems.filter(item => checkedPrepItems[item.id]).length;
+  const prepPercentage = totalPrepCount > 0 
+    ? Math.min(100, Math.max(0, Math.round((completedPrepCount / totalPrepCount) * 100))) 
+    : 0;
 
   const toggleThreatMode = () => setIsThreatMode(prev => !prev);
   const toggleOfflineMode = () => setIsOffline(prev => !prev);
@@ -199,6 +301,14 @@ export const DisasterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         toggleOfflineMode,
         selectedLocation,
         setSelectedLocation,
+        selectedSector,
+        setSelectedSector,
+        supportedSectors,
+        userLocation,
+        requestUserLocation,
+        selectSectorById,
+        clearGpsLocation,
+        hasAlertInSelectedArea,
         isSOSOpen,
         setIsSOSOpen,
         activeAlert,
@@ -234,3 +344,4 @@ export const useDisaster = () => {
   }
   return context;
 };
+

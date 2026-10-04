@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MOCK_SAFE_ZONES, SafeZone } from '@/data/safeZonesData';
+import { SafeZoneService } from '@/services';
 import { SafeZoneMap } from '@/components/SafeZoneMap';
 import { SafeZoneBottomSheet } from '@/components/SafeZoneBottomSheet';
 import { useDisaster } from '@/context/DisasterContext';
@@ -9,11 +9,20 @@ import { animatePageEnter } from '@/lib/animations';
 import { MapPin, Navigation, Home, Hospital, Shield, Flame, Search } from 'lucide-react';
 
 export default function SafeZonesPage() {
-  const { selectedLocation } = useDisaster();
+  const { selectedLocation, userLocation } = useDisaster();
   const containerRef = useRef<HTMLElement>(null);
+  const [userSelectedZoneId, setUserSelectedZoneId] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedZone, setSelectedZone] = useState<SafeZone | undefined>(MOCK_SAFE_ZONES[0]);
+
+  const filteredSafeZones = SafeZoneService.getSafeZones({
+    category: selectedFilter,
+    searchQuery,
+    area: selectedLocation,
+    userCoords: userLocation.coordinates,
+  });
+
+  const selectedZone = (userSelectedZoneId ? filteredSafeZones.find(z => z.id === userSelectedZoneId) : undefined) || filteredSafeZones[0] || SafeZoneService.getNearestSafeZone(userLocation.coordinates, selectedLocation);
 
   useEffect(() => {
     animatePageEnter(containerRef.current);
@@ -26,16 +35,6 @@ export default function SafeZonesPage() {
     { id: 'Fire', label: 'Fire & Rescue', icon: Flame },
     { id: 'Police', label: 'Police Stations', icon: Shield },
   ];
-
-  const filteredSafeZones = MOCK_SAFE_ZONES.filter(zone => {
-    const matchesCategory = selectedFilter === 'All' || zone.type === selectedFilter;
-    const matchesSearch =
-      zone.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      zone.area.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      zone.type.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesCategory && matchesSearch;
-  });
 
   return (
     <main 
@@ -53,11 +52,14 @@ export default function SafeZonesPage() {
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
           Safe Haven & Emergency Hub Locator
         </h1>
-        <p className="text-xs sm:text-sm text-[#b3c2d0] flex items-center gap-1.5">
+        <p className="text-xs sm:text-sm text-[#b3c2d0] flex items-center gap-1.5 flex-wrap">
           <span>Verified live capacity, backup generators, and turn-by-turn routes around</span>
-          <span className="font-semibold text-white flex items-center gap-1">
+          <span className="font-semibold text-white flex items-center gap-1 bg-[#101c27] px-2 py-0.5 rounded-md border border-[#243646]">
             <MapPin className="h-3.5 w-3.5 text-[#10b981]" />
             {selectedLocation}
+          </span>
+          <span className="text-[10px] font-mono text-[#22d3ee] bg-[#22d3ee]/10 px-2 py-0.5 rounded border border-[#22d3ee]/20">
+            {userLocation.source === 'gps' ? 'Live GPS Calculations' : 'Sector Proximity'}
           </span>
         </p>
       </div>
@@ -112,7 +114,9 @@ export default function SafeZonesPage() {
             <SafeZoneMap
               safeZones={filteredSafeZones}
               selectedZone={selectedZone}
-              onSelectZone={setSelectedZone}
+              onSelectZone={(zone) => setUserSelectedZoneId(zone ? zone.id : null)}
+              userCoords={userLocation.coordinates}
+              userLocationLabel={selectedLocation}
             />
           </div>
         </section>
@@ -124,16 +128,36 @@ export default function SafeZonesPage() {
               Nearby Havens ({filteredSafeZones.length} Locations)
             </span>
             <span className="text-[11px] font-mono text-[#71879a]">
-              Sorted by Distance
+              {userLocation.source === 'gps' ? 'Sorted by GPS Proximity' : 'Sorted by Sector Distance'}
             </span>
           </div>
 
           <div className="xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:pr-2 space-y-4 custom-scrollbar">
-            <SafeZoneBottomSheet
-              safeZones={filteredSafeZones}
-              selectedZoneId={selectedZone?.id}
-              onSelectZone={setSelectedZone}
-            />
+            {filteredSafeZones.length > 0 ? (
+              <SafeZoneBottomSheet
+                safeZones={filteredSafeZones}
+                selectedZoneId={selectedZone?.id}
+                onSelectZone={(zone) => setUserSelectedZoneId(zone ? zone.id : null)}
+              />
+            ) : (
+              <div className="p-8 text-center rounded-2xl bg-[#101c27] border border-[#243646] space-y-3">
+                <MapPin className="h-8 w-8 text-[#71879a] mx-auto" />
+                <h4 className="font-bold text-sm text-white">No Safe Havens Found</h4>
+                <p className="text-xs text-[#b3c2d0] max-w-xs mx-auto">
+                  No emergency shelters or medical centers match your current filter or search criteria. Try clearing search filters.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFilter('All');
+                    setSearchQuery('');
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-[#162532] hover:bg-[#1c3040] text-xs font-bold text-[#22d3ee] border border-[#22d3ee]/30 transition-all cursor-pointer"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
           </div>
         </aside>
 

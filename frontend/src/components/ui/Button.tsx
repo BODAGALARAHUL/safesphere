@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'critical' | 'safe' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'critical' | 'safe' | 'secondary' | 'outline' | 'ghost' | 'emergency';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   isLoading?: boolean;
   children: React.ReactNode;
@@ -17,12 +19,13 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    primary: 'bg-[#38a8ff] hover:bg-[#2b8edd] text-white font-bold shadow-sm',
-    critical: 'bg-[#ff304f] hover:bg-[#e02441] text-white font-black shadow-md active:scale-[0.98]',
-    safe: 'bg-[#16c784] hover:bg-[#12a970] text-white font-bold shadow-sm',
-    secondary: 'bg-[#18212d] hover:bg-[#202b3a] text-[#f8fafc] border border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.16)] font-semibold',
-    outline: 'bg-transparent hover:bg-[#18212d] text-[#f8fafc] border border-[rgba(255,255,255,0.12)] font-semibold',
-    ghost: 'bg-transparent hover:bg-[#18212d] text-[#aab7c7] hover:text-[#f8fafc]',
+    primary: 'bg-[#22d3ee] hover:bg-[#06b6d4] text-[#071018] font-bold shadow-sm active:scale-[0.98]',
+    critical: 'bg-[#f43f5e] hover:bg-[#e11d48] text-white font-black shadow-md active:scale-[0.98]',
+    emergency: 'bg-[#f43f5e] hover:bg-[#e11d48] text-white font-black shadow-lg shadow-[#f43f5e]/25 active:scale-[0.98]',
+    safe: 'bg-[#10b981] hover:bg-[#059669] text-white font-bold shadow-sm active:scale-[0.98]',
+    secondary: 'bg-[#101c27] hover:bg-[#162532] text-[#f4f8fb] border border-[#243646] hover:border-[#355066] font-semibold',
+    outline: 'bg-transparent hover:bg-[#101c27] text-[#f4f8fb] border border-[#243646] font-semibold',
+    ghost: 'bg-transparent hover:bg-[#101c27] text-[#b3c2d0] hover:text-[#f4f8fb]',
   }[variant];
 
   const sizeStyles = {

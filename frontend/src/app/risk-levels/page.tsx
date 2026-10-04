@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { SeverityBadge } from '@/components/SeverityBadge';
+import { DisasterIcon } from '@/components/shared';
 import { useDisaster } from '@/context/DisasterContext';
 import {
   animatePageEnter,
@@ -14,10 +15,6 @@ import {
   ShieldAlert,
   MapPin,
   ArrowRight,
-  Waves,
-  Wind,
-  Sun,
-  Activity,
   TrendingUp,
   Gauge,
   Layers,
@@ -46,29 +43,35 @@ export default function RiskLevelsPage() {
       type: 'Flood',
       severity: 'CRITICAL' as const,
       riskScore: 92,
-      icon: Waves,
       status: 'Active dam release: 134.5 ft river crest (Threshold: 128 ft)',
       trend: 'Rising (+1.2 ft/hr)',
-      actionUrl: '/alerts/alert-flood-01',
+      actionUrl: '/disasters/flood',
     },
     {
       name: 'Arabian Sea Cyclonic Winds',
       type: 'Cyclone',
       severity: 'HIGH_RISK' as const,
       riskScore: 68,
-      icon: Wind,
       status: 'Peripheral gale gusts 65 km/h recorded at coastal radars',
       trend: 'Sustained',
       actionUrl: '/disasters/cyclone',
     },
     {
-      name: 'Regional Extreme Heat Index',
-      type: 'Heatwave',
+      name: 'Pavagadh Hillside Slope Telemetry',
+      type: 'Landslide',
+      severity: 'HIGH_RISK' as const,
+      riskScore: 74,
+      status: 'High soil moisture saturation with rockfall warnings along highway',
+      trend: 'Elevated Risk',
+      actionUrl: '/disasters/landslide',
+    },
+    {
+      name: 'Urban Industrial Fire Risk',
+      type: 'Fire',
       severity: 'MODERATE' as const,
-      riskScore: 48,
-      icon: Sun,
-      status: 'Peak daytime ambient: 41.5°C with 60% relative humidity',
-      trend: 'Declining post-sunset',
+      riskScore: 45,
+      status: 'Dry ambient winds with heightened chemical zone fire alert',
+      trend: 'Monitored',
       actionUrl: '/disasters/fire',
     },
     {
@@ -76,7 +79,6 @@ export default function RiskLevelsPage() {
       type: 'Earthquake',
       severity: 'SAFE' as const,
       riskScore: 12,
-      icon: Activity,
       status: 'Zero micro-seismic anomalies detected across Zone 3 sensors',
       trend: 'Stable / Baseline',
       actionUrl: '/disasters/earthquake',
@@ -221,18 +223,15 @@ export default function RiskLevelsPage() {
         </h2>
 
         <div ref={hazardsRef} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {hazardsList.map(h => {
-            const Icon = h.icon;
-
-            return (
-              <div
-                key={h.name}
-                className="hazard-row p-5 rounded-2xl bg-[#0d121a] border border-[rgba(255,255,255,0.08)] hover:bg-[#151c26] transition-all space-y-3.5 shadow-sm"
-              >
+          {hazardsList.map(h => (
+            <div
+              key={h.name}
+              className="hazard-row p-5 rounded-2xl bg-[#0d121a] border border-[rgba(255,255,255,0.08)] hover:bg-[#151c26] transition-all space-y-3.5 shadow-sm"
+            >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-[#151c26] border border-[rgba(255,255,255,0.08)] text-white">
-                      <Icon className="h-5 w-5" />
+                    <div className="p-2.5 rounded-xl bg-[#151c26] border border-[rgba(255,255,255,0.08)] text-white flex items-center justify-center">
+                      <DisasterIcon type={h.type} className="h-5 w-5 text-[#22d3ee]" />
                     </div>
                     <div>
                       <h4 className="font-black text-sm text-white">{h.name}</h4>
@@ -256,8 +255,7 @@ export default function RiskLevelsPage() {
                   </Link>
                 </div>
               </div>
-            );
-          })}
+          ))}
         </div>
       </section>
 

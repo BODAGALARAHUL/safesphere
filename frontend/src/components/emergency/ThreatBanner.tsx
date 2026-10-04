@@ -4,8 +4,8 @@ import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useDisaster } from '@/context/DisasterContext';
 import { SeverityBadge } from '@/components/SeverityBadge';
-import { DisasterAlert, getLocalizedAlert } from '@/data/disastersData';
-import { SafeZone } from '@/data/safeZonesData';
+import type { DisasterAlert, SafeZone } from '@/types';
+import { getLocalizedAlert } from '@/data/disastersData';
 import { createScrollCounter, createParallaxEffect } from '@/lib/animations';
 import {
   ShieldCheck,
@@ -25,7 +25,7 @@ interface ThreatBannerProps {
 }
 
 export const ThreatBanner: React.FC<ThreatBannerProps> = ({ alert, nearestShelter }) => {
-  const { isThreatMode, selectedLocation, currentLanguage, t } = useDisaster();
+  const { isThreatMode, selectedLocation, userLocation, hasAlertInSelectedArea, currentLanguage, t } = useDisaster();
   const localizedAlert = getLocalizedAlert(alert, currentLanguage);
   const scoreRef = useRef<HTMLSpanElement>(null);
   const radarGlowRef = useRef<HTMLDivElement>(null);
@@ -39,7 +39,12 @@ export const ThreatBanner: React.FC<ThreatBannerProps> = ({ alert, nearestShelte
     }
   }, []);
 
-  if (!isThreatMode) {
+  const distanceLabel = userLocation.source === 'gps'
+    ? `${nearestShelter.distanceKm} km (Live GPS)`
+    : `${nearestShelter.distanceKm} km (Nearest in ${selectedLocation.split('·')[0].trim()})`;
+
+  // If threat simulation is off OR there are no active threat alerts for this sector
+  if (!isThreatMode || !hasAlertInSelectedArea) {
     return (
       <div className="relative overflow-hidden rounded-2xl bg-[#0d121a] border border-[rgba(22,199,132,0.3)] p-6 sm:p-8 text-[#f5f7fa] shadow-2xl">
         
@@ -49,16 +54,16 @@ export const ThreatBanner: React.FC<ThreatBannerProps> = ({ alert, nearestShelte
           <div className="space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(22,199,132,0.12)] text-[#16c784] text-xs font-bold border border-[rgba(22,199,132,0.25)]">
               <span className="h-2 w-2 rounded-full bg-[#16c784] animate-pulse" />
-              <span>{t('areaMonitoring') || 'SECTOR SENSOR MESH ACTIVE · NO CRITICAL THREAT'}</span>
+              <span>{t('areaMonitoring') || `SECTOR SENSOR MESH ACTIVE · ${userLocation.source === 'gps' ? 'GPS LOCATED' : 'MONITORED AREA'}`}</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2.5 text-white">
               <ShieldCheck className="h-7 w-7 text-[#16c784] shrink-0" />
-              <span>All Systems Normal in {selectedLocation}</span>
+              <span>No Active Warnings in {selectedLocation}</span>
             </h1>
 
             <p className="text-xs sm:text-sm text-[#94a3b8] leading-relaxed">
-              River basin telemetry, municipal rain gauges, and meteorological Doppler feeds report baseline parameters. 
+              River basin telemetry, municipal rain gauges, and meteorological Doppler feeds report baseline parameters for {selectedLocation}. 
               Review your emergency preparedness kit and nearest designated evacuation safe havens.
             </p>
 
@@ -69,6 +74,10 @@ export const ThreatBanner: React.FC<ThreatBannerProps> = ({ alert, nearestShelte
               <span>•</span>
               <span className="flex items-center gap-1.5 text-[#94a3b8]">
                 <Radio className="h-3.5 w-3.5 text-[#16c784]" /> SDMA Sensor Mesh Live
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5 text-[#38a8ff]">
+                <Navigation className="h-3.5 w-3.5 text-[#38a8ff]" /> Haven: {distanceLabel}
               </span>
             </div>
           </div>
@@ -166,7 +175,7 @@ export const ThreatBanner: React.FC<ThreatBannerProps> = ({ alert, nearestShelte
               </div>
               <div className="flex justify-between text-[#94a3b8]">
                 <span>Nearest Haven:</span>
-                <span className="font-mono font-bold text-[#38a8ff]">{nearestShelter.distanceKm} km ({nearestShelter.name})</span>
+                <span className="font-mono font-bold text-[#38a8ff] truncate max-w-[200px]">{distanceLabel} · {nearestShelter.name}</span>
               </div>
             </div>
           </div>
@@ -191,7 +200,7 @@ export const ThreatBanner: React.FC<ThreatBannerProps> = ({ alert, nearestShelte
             <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 w-full sm:w-auto shrink-0">
               <Link
                 href="/safe-zones"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-xl bg-[#38a8ff] hover:bg-[#2b8edd] text-white text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 min-h-[44px]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-xl bg-[#22d3ee] hover:bg-[#06b6d4] text-[#071018] text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 min-h-[44px]"
               >
                 <Navigation className="h-4 w-4" />
                 <span>Find Safe Haven</span>
@@ -199,7 +208,7 @@ export const ThreatBanner: React.FC<ThreatBannerProps> = ({ alert, nearestShelte
 
               <a
                 href="tel:112"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-xl bg-[#ff304f] hover:bg-[#e02441] text-white text-xs sm:text-sm font-black shadow-md transition-all active:scale-95 min-h-[44px]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-xl bg-[#f43f5e] hover:bg-[#e11d48] text-white text-xs sm:text-sm font-black shadow-md transition-all active:scale-95 min-h-[44px]"
               >
                 <Phone className="h-4 w-4" />
                 <span>Call 112 Help</span>
@@ -207,7 +216,7 @@ export const ThreatBanner: React.FC<ThreatBannerProps> = ({ alert, nearestShelte
 
               <Link
                 href={`/disasters/${alert.disasterType.toLowerCase()}`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#151c26] hover:bg-[#1b2430] border border-[rgba(255,255,255,0.08)] text-[#f5f7fa] text-xs font-semibold transition-all min-h-[44px]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#151c26] hover:bg-[#1b2430] border border-[#243646] text-[#f4f8fb] text-xs font-semibold transition-all min-h-[44px]"
               >
                 <BookOpen className="h-3.5 w-3.5 text-[#94a3b8]" />
                 <span>Survival SOP</span>
